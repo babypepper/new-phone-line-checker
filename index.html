@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#2563eb" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="회선체크" />
+    <title>신규회선 체크</title>
+    <link rel="manifest" href="./manifest.json" />
+    <link rel="icon" href="./icon.svg" />
+    <link rel="apple-touch-icon" href="./icon.svg" />
+    <link rel="stylesheet" href="./styles.css?v=9" />
+  </head>
+  <body>
+    <div id="splashScreen" class="splash-screen" aria-label="시작 화면">
+      <img src="./splash.png" alt="적자생존 신규회선 날짜체크 시작 이미지" />
+    </div>
+
+    <div id="pinLock" class="pin-lock hidden">
+      <div class="pin-card">
+        <p class="eyebrow">잠금</p>
+        <h2>PIN을 입력하세요</h2>
+        <input id="pinUnlockInput" type="password" inputmode="numeric" maxlength="12" placeholder="PIN" />
+        <button id="pinUnlockButton" type="button">열기</button>
+        <p id="pinMessage" class="pin-message"></p>
+      </div>
+    </div>
+
+    <main class="app">
+      <section class="topbar">
+        <div>
+          <p class="eyebrow">180일 내 명의당 최대 3회선</p>
+          <h1>신규회선 체크</h1>
+        </div>
+        <div class="today-box">
+          <span>오늘</span>
+          <strong id="todayText"></strong>
+        </div>
+      </section>
+
+      <section id="backupNotice" class="notice hidden" aria-label="백업 알림"></section>
+
+      <section class="entry-panel" aria-label="신규회선 입력">
+        <form id="lineForm" class="line-form">
+          <label>
+            <span>명의자</span>
+            <input id="ownerInput" type="text" autocomplete="off" placeholder="홍길동" required />
+          </label>
+          <label>
+            <span>통신사</span>
+            <input id="carrierInput" type="text" list="carrierOptions" placeholder="SKT, KT, LGU+" required />
+          </label>
+          <label>
+            <span>신규날짜</span>
+            <input id="dateInput" type="date" required />
+          </label>
+          <label>
+            <span>신규번호</span>
+            <input id="phoneInput" type="tel" inputmode="numeric" autocomplete="off" placeholder="010-0000-0000" required />
+          </label>
+          <label>
+            <span>상태</span>
+            <select id="statusInput">
+              <option value="confirmed">확정</option>
+              <option value="planned">예정</option>
+            </select>
+          </label>
+          <label class="memo-field">
+            <span>메모</span>
+            <textarea id="memoInput" rows="2" placeholder="요금제, 유심, 해지 예정 등"></textarea>
+          </label>
+          <div class="carrier-picks" aria-label="통신사 빠른 선택">
+            <button type="button" data-carrier="SKT">SKT</button>
+            <button type="button" data-carrier="KT">KT</button>
+            <button type="button" data-carrier="LGU+">LGU+</button>
+            <button type="button" data-carrier="알뜰폰">알뜰폰</button>
+          </div>
+          <div id="duplicateWarning" class="duplicate-warning hidden"></div>
+          <div class="form-actions">
+            <button id="submitButton" type="submit" class="primary-action">추가</button>
+            <button id="cancelEditButton" type="button" class="secondary hidden">취소</button>
+          </div>
+        </form>
+
+        <datalist id="carrierOptions">
+          <option value="SKT"></option>
+          <option value="KT"></option>
+          <option value="LGU+"></option>
+          <option value="알뜰폰"></option>
+        </datalist>
+      </section>
+
+      <section class="info-strip" aria-label="저장과 공유 안내">
+        <span>데이터는 현재 브라우저에 자동 저장됩니다.</span>
+        <span>백업 파일을 저장해두면 다른 기기에서도 복원할 수 있습니다.</span>
+      </section>
+
+      <section class="controls" aria-label="목록 관리">
+        <label>
+          <span>검색</span>
+          <input id="searchInput" type="search" placeholder="명의자, 번호 끝자리, 통신사, 메모" />
+        </label>
+        <label>
+          <span>명의자 보기</span>
+          <select id="ownerFilter">
+            <option value="all">전체</option>
+          </select>
+        </label>
+        <div class="button-row">
+          <button id="pinButton" type="button" class="secondary">PIN 설정</button>
+          <button id="backupButton" type="button" class="secondary">백업 저장</button>
+          <button id="restoreButton" type="button" class="secondary">백업 불러오기</button>
+          <button id="exportButton" type="button" class="secondary">CSV 저장</button>
+        </div>
+        <input id="restoreInput" type="file" accept="application/json,.json" hidden />
+      </section>
+
+      <section id="summaryGrid" class="summary-grid" aria-label="명의자별 요약"></section>
+
+      <section class="table-wrap" aria-label="신규회선 목록">
+        <table>
+          <thead>
+            <tr>
+              <th>명의자</th>
+              <th>통신사</th>
+              <th>신규날짜</th>
+              <th>신규번호</th>
+              <th>다음 신규 날짜</th>
+              <th>D-Day</th>
+              <th>상태</th>
+              <th>메모</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="lineTable"></tbody>
+        </table>
+        <div id="emptyState" class="empty-state">
+          <strong>아직 등록된 회선이 없습니다.</strong>
+          <span>명의자, 통신사, 신규날짜, 신규번호를 넣으면 다음 가능 날짜가 자동 계산됩니다.</span>
+        </div>
+      </section>
+    </main>
+
+    <script src="./app.js?v=9"></script>
+  </body>
+</html>
