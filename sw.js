@@ -1,9 +1,9 @@
-const CACHE_NAME = "telecom-line-checker-v14";
+const CACHE_NAME = "telecom-line-checker-v151";
 const APP_FILES = [
   "./",
   "./index.html",
-  "./styles.css?v=14",
-  "./app.js?v=14",
+  "./styles.css?v=151",
+  "./app.js?v=151",
   "./manifest.json",
   "./icon.svg",
   "./splash.png",

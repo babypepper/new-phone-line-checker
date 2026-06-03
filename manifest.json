@@ -1,12 +1,12 @@
 {
-  "name": "신규회선 체크",
-  "short_name": "회선체크",
+  "name": "신규회선 날짜체크",
+  "short_name": "날짜체크",
   "description": "명의자별 신규회선 가능 날짜를 관리하는 앱",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "background_color": "#f5f8ff",
-  "theme_color": "#2563eb",
+  "theme_color": "#206080",
   "orientation": "portrait",
   "icons": [
     {

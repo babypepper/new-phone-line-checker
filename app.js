@@ -289,12 +289,12 @@ function renderSummary() {
     card.innerHTML = `
       <div class="summary-title">
         <strong>${escapeHtml(owner)}</strong>
-        <span>등록 ${ownerRecords.length}개 · 180일 내 ${active.length}개 · 예정 ${ownerRecords.filter((record) => record.status === "planned").length}개</span>
+        <span>등록 ${ownerRecords.length}개 · 180일 내 ${active.length}개</span>
       </div>
       <div class="summary-meta">
         <div class="summary-date">
           <span>다음 신규회선 가능일</span>
-          <b>${formatDate(nextDate)} · ${formatDday(nextDate)}</b>
+          <b>${formatCompactDate(nextDate)} · ${formatDday(nextDate)}</b>
         </div>
       </div>
     `;
@@ -322,8 +322,7 @@ function renderTable() {
       <td colspan="2">
         <button type="button" data-owner-toggle="${escapeHtml(owner)}" aria-label="${escapeHtml(owner)} ${collapsed ? "펼치기" : "접기"}" title="${collapsed ? "펼치기" : "접기"}">
           <span class="owner-toggle-icon" aria-hidden="true">${collapsed ? "▸" : "▾"}</span>
-          <strong>${escapeHtml(owner)}</strong>
-          <em>${ownerRecords.length}개</em>
+          <strong>${escapeHtml(owner)} <small>(${ownerRecords.length}개)</small></strong>
         </button>
       </td>
     `;
@@ -339,17 +338,20 @@ function renderTable() {
       row.innerHTML = `
         <td colspan="2">
           <div class="line-card">
-            <div class="line-card-fields">
-              <span class="line-field"><b>명의자</b> <em>${escapeHtml(record.owner)}</em></span>
-              <span class="line-field"><b>통신사</b> <em>${escapeHtml(record.carrier)}</em></span>
-              <span class="line-field"><b>신규날짜</b> <em>${formatDate(record.openedAt)}</em></span>
-              <span class="line-field"><b>신규번호</b> <em>${escapeHtml(record.phone)}</em></span>
-              <span class="line-field ${isEarliestNext ? "next-soon" : ""}"><b>다음가능날짜</b> <em>${formatDate(nextDate)}</em></span>
-              <span class="line-field"><b>디데이</b> <em class="dday ${ddayClass(nextDate)}">${formatDday(nextDate)}</em></span>
+            <div class="line-card-head">
+              <div>
+                <strong>${escapeHtml(record.owner)}</strong>
+                <span>${escapeHtml(record.carrier)} · ${escapeHtml(record.phone)}</span>
+              </div>
+              <div class="row-button-group">
+                <button class="edit-button" type="button" data-edit-id="${record.id}">수정</button>
+                <button class="delete-button" type="button" data-delete-id="${record.id}">삭제</button>
+              </div>
             </div>
-            <div class="row-button-group">
-              <button class="edit-button" type="button" data-edit-id="${record.id}">수정</button>
-              <button class="delete-button" type="button" data-delete-id="${record.id}">삭제</button>
+            <div class="line-card-fields">
+              <span class="line-field"><b>개통</b> <em>${formatCompactDate(record.openedAt)}</em></span>
+              <span class="line-field ${isEarliestNext ? "next-soon" : ""}"><b>가능</b> <em>${formatCompactDate(nextDate)}</em></span>
+              <span class="line-field"><b>상태</b> <em class="dday ${ddayClass(nextDate)}">${formatDday(nextDate)}</em></span>
             </div>
           </div>
         </td>
@@ -482,8 +484,10 @@ function makeDueNoticeHtml(dueLines) {
       (item) => `
         <li>
           <strong>${escapeHtml(item.owner)}</strong>
-          <span>${formatDday(item.nextDate)}</span>
-          <em>${formatDate(item.nextDate)}</em>
+          <span>
+            <b>${formatDday(item.nextDate)}</b>
+            <em>${formatCompactDate(item.nextDate)}</em>
+          </span>
         </li>
       `,
     )
@@ -679,6 +683,15 @@ function formatDate(dateString) {
     weekday: "short",
     timeZone: "UTC",
   }).format(fromInputDate(dateString));
+}
+
+function formatCompactDate(dateString) {
+  const date = fromInputDate(dateString);
+  const weekdays = ["일", "월", "화", "수", "목", "금", "토"];
+  const year = date.getUTCFullYear();
+  const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(date.getUTCDate()).padStart(2, "0");
+  return `${year}.${month}.${day}(${weekdays[date.getUTCDay()]})`;
 }
 
 function formatDday(dateString) {
