@@ -6,11 +6,11 @@
     <meta name="theme-color" content="#2563eb" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content="회선체크" />
-    <title>신규회선 체크</title>
+    <title>180일의 기다림(신규회선 체크)</title>
     <link rel="manifest" href="./manifest.json" />
     <link rel="icon" href="./icon.svg" />
     <link rel="apple-touch-icon" href="./icon.svg" />
-    <link rel="stylesheet" href="./styles.css?v=9" />
+    <link rel="stylesheet" href="./styles.css?v=14" />
   </head>
   <body>
     <div id="splashScreen" class="splash-screen" aria-label="시작 화면">
@@ -29,9 +29,13 @@
 
     <main class="app">
       <section class="topbar">
-        <div>
-          <p class="eyebrow">180일 내 명의당 최대 3회선</p>
-          <h1>신규회선 체크</h1>
+        <div class="app-version">v.1.4.1 by 후추</div>
+        <div class="title-block">
+          <p class="eyebrow" aria-hidden="true">&nbsp;</p>
+          <div class="title-line">
+            <h1>180일의 기다림(신규회선 체크)</h1>
+          </div>
+          <p class="tagline">당장 일어납니다. 빨리빨리 신규회선 적습니다.</p>
         </div>
         <div class="today-box">
           <span>오늘</span>
@@ -42,6 +46,9 @@
       <section id="backupNotice" class="notice hidden" aria-label="백업 알림"></section>
 
       <section class="entry-panel" aria-label="신규회선 입력">
+        <div class="panel-title">
+          <strong>회선 추가 입력하기</strong>
+        </div>
         <form id="lineForm" class="line-form">
           <label>
             <span>명의자</span>
@@ -49,7 +56,7 @@
           </label>
           <label>
             <span>통신사</span>
-            <input id="carrierInput" type="text" list="carrierOptions" placeholder="SKT, KT, LGU+" required />
+            <input id="carrierInput" type="text" placeholder="통신사" required />
           </label>
           <label>
             <span>신규날짜</span>
@@ -59,36 +66,12 @@
             <span>신규번호</span>
             <input id="phoneInput" type="tel" inputmode="numeric" autocomplete="off" placeholder="010-0000-0000" required />
           </label>
-          <label>
-            <span>상태</span>
-            <select id="statusInput">
-              <option value="confirmed">확정</option>
-              <option value="planned">예정</option>
-            </select>
-          </label>
-          <label class="memo-field">
-            <span>메모</span>
-            <textarea id="memoInput" rows="2" placeholder="요금제, 유심, 해지 예정 등"></textarea>
-          </label>
-          <div class="carrier-picks" aria-label="통신사 빠른 선택">
-            <button type="button" data-carrier="SKT">SKT</button>
-            <button type="button" data-carrier="KT">KT</button>
-            <button type="button" data-carrier="LGU+">LGU+</button>
-            <button type="button" data-carrier="알뜰폰">알뜰폰</button>
-          </div>
           <div id="duplicateWarning" class="duplicate-warning hidden"></div>
           <div class="form-actions">
             <button id="submitButton" type="submit" class="primary-action">추가</button>
             <button id="cancelEditButton" type="button" class="secondary hidden">취소</button>
           </div>
         </form>
-
-        <datalist id="carrierOptions">
-          <option value="SKT"></option>
-          <option value="KT"></option>
-          <option value="LGU+"></option>
-          <option value="알뜰폰"></option>
-        </datalist>
       </section>
 
       <section class="info-strip" aria-label="저장과 공유 안내">
@@ -98,21 +81,21 @@
 
       <section class="controls" aria-label="목록 관리">
         <label>
-          <span>검색</span>
-          <input id="searchInput" type="search" placeholder="명의자, 번호 끝자리, 통신사, 메모" />
-        </label>
-        <label>
           <span>명의자 보기</span>
           <select id="ownerFilter">
             <option value="all">전체</option>
           </select>
         </label>
         <div class="button-row">
-          <button id="pinButton" type="button" class="secondary">PIN 설정</button>
-          <button id="backupButton" type="button" class="secondary">백업 저장</button>
-          <button id="restoreButton" type="button" class="secondary">백업 불러오기</button>
-          <button id="exportButton" type="button" class="secondary">CSV 저장</button>
+          <div class="button-row-left">
+            <button id="pinButton" type="button" class="secondary pin-action">PIN 설정</button>
+          </div>
+          <div class="button-row-right">
+            <button id="backupButton" type="button" class="secondary">백업 저장</button>
+            <button id="restoreButton" type="button" class="secondary">백업 불러오기</button>
+          </div>
         </div>
+        <p id="backupStatus" class="backup-status"></p>
         <input id="restoreInput" type="file" accept="application/json,.json" hidden />
       </section>
 
@@ -122,14 +105,7 @@
         <table>
           <thead>
             <tr>
-              <th>명의자</th>
-              <th>통신사</th>
-              <th>신규날짜</th>
-              <th>신규번호</th>
-              <th>다음 신규 날짜</th>
-              <th>D-Day</th>
-              <th>상태</th>
-              <th>메모</th>
+              <th>회선정보</th>
               <th></th>
             </tr>
           </thead>
@@ -142,6 +118,6 @@
       </section>
     </main>
 
-    <script src="./app.js?v=9"></script>
+    <script src="./app.js?v=14"></script>
   </body>
 </html>

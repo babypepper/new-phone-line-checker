@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#2563eb" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content="회선체크" />
-    <title>신규회선 체크</title>
+    <title>180일의 기다림(신규회선 체크)</title>
     <style>
 :root {
   color-scheme: light;
@@ -14,7 +14,7 @@
   --muted: #667085;
   --line: #d7e3f5;
   --panel: #ffffff;
-  --page: #f5f8ff;
+  --page: #f6f7fb;
   --green: #2563eb;
   --green-deep: #1e3a8a;
   --green-soft: #eff6ff;
@@ -22,6 +22,8 @@
   --yellow-border: #dfb400;
   --gray-row: #eef1f5;
   --red: #b42318;
+  --red-soft: #fff1f0;
+  --shadow: 0 18px 46px rgba(31, 41, 51, 0.1);
 }
 
 * {
@@ -32,7 +34,8 @@ body {
   margin: 0;
   min-width: 320px;
   background:
-    linear-gradient(180deg, rgba(37, 99, 235, 0.12), rgba(243, 247, 246, 0) 280px),
+    radial-gradient(circle at 20% 0%, rgba(255, 224, 130, 0.32), transparent 280px),
+    linear-gradient(180deg, rgba(37, 99, 235, 0.11), rgba(246, 247, 251, 0) 300px),
     var(--page);
   color: var(--ink);
   font-family:
@@ -99,7 +102,7 @@ button:hover {
   flex-direction: column;
   width: min(1180px, calc(100% - 32px));
   margin: 0 auto;
-  padding: 28px 0 44px;
+  padding: 18px 0 44px;
 }
 
 .topbar {
@@ -152,18 +155,34 @@ button:hover {
 }
 
 .topbar {
-  align-items: end;
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 18px;
+  align-items: center;
+  display: grid;
+  gap: 8px;
+  justify-items: center;
+  margin-bottom: 14px;
+  position: relative;
+  text-align: center;
+}
+
+.title-block {
+  display: grid;
+  gap: 4px;
+  justify-items: center;
+  min-width: 0;
+}
+
+.title-line {
+  display: grid;
+  justify-items: center;
 }
 
 .eyebrow {
   color: var(--green);
   font-size: 14px;
   font-weight: 800;
-  margin: 0 0 6px;
+  line-height: 1;
+  margin: 0;
+  min-height: 14px;
 }
 
 h1 {
@@ -173,11 +192,19 @@ h1 {
   margin: 0;
 }
 
+.tagline {
+  color: #dc2626;
+  font-size: 14px;
+  font-weight: 700;
+  margin: 0;
+}
+
 .today-box {
   align-items: flex-end;
-  background: var(--panel);
+  background: rgba(255, 255, 255, 0.86);
   border: 1px solid var(--line);
-  border-radius: 10px;
+  border-radius: 14px;
+  box-shadow: 0 12px 28px rgba(31, 41, 51, 0.08);
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -190,16 +217,55 @@ h1 {
   font-size: 13px;
 }
 
+.app-version {
+  color: #8a94a6;
+  font-size: 11px;
+  font-weight: 800;
+  justify-self: stretch;
+  line-height: 1;
+  text-align: right;
+  width: 100%;
+}
+
 .entry-panel,
 .controls,
 .table-wrap {
-  background: var(--panel);
+  background: rgba(255, 255, 255, 0.88);
   border: 1px solid var(--line);
-  border-radius: 10px;
+  border-radius: 16px;
+  box-shadow: var(--shadow);
 }
 
 .entry-panel {
-  padding: 16px;
+  background:
+    linear-gradient(135deg, rgba(239, 246, 255, 0.95), rgba(255, 255, 255, 0.96) 48%, rgba(255, 251, 235, 0.9)),
+    var(--panel);
+  border-color: #a9c7f6;
+  box-shadow:
+    0 18px 42px rgba(37, 99, 235, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  padding: 14px;
+  position: relative;
+}
+
+.panel-title {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.panel-title strong {
+  color: #1e3a8a;
+  font-size: 15px;
+}
+
+.panel-title::before {
+  background: linear-gradient(135deg, #2563eb, #0f8a83);
+  border-radius: 999px;
+  content: "";
+  height: 8px;
+  width: 8px;
 }
 
 .info-strip {
@@ -221,38 +287,39 @@ h1 {
 
 .line-form {
   display: grid;
-  gap: 12px;
-  grid-template-columns: 1fr 1fr 170px 1fr 130px;
+  gap: 10px 12px;
+  grid-template-columns: repeat(2, minmax(180px, 320px));
   align-items: end;
+  justify-content: center;
+  margin: 0 auto;
+  max-width: 720px;
 }
 
 .form-actions {
-  display: flex;
+  display: grid;
   gap: 8px;
+  grid-template-columns: 1fr;
 }
 
-.memo-field,
-.carrier-picks,
 .duplicate-warning,
 .form-actions {
   grid-column: 1 / -1;
 }
 
-.carrier-picks {
-  display: grid;
-  gap: 8px;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-}
-
-.carrier-picks button {
-  background: #eff6ff;
-  border: 1px solid #bfdbfe;
-  color: var(--green-deep);
-}
-
 label {
   display: grid;
   gap: 7px;
+}
+
+.line-form label {
+  align-items: center;
+  display: grid;
+  gap: 8px;
+  grid-template-columns: 74px minmax(0, 1fr);
+}
+
+.line-form label span {
+  font-size: 13px;
 }
 
 label span {
@@ -264,13 +331,21 @@ label span {
 input,
 select,
 textarea {
-  background: #fff;
-  border: 1px solid var(--line);
-  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid #cfdcf0;
+  border-radius: 12px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
   color: var(--ink);
   min-height: 44px;
-  padding: 0 11px;
+  padding: 0 13px;
   width: 100%;
+}
+
+.line-form input {
+  border-radius: 10px;
+  font-size: 13px;
+  min-height: 38px;
+  padding: 0 10px;
 }
 
 input:focus,
@@ -290,7 +365,7 @@ textarea {
 .notice {
   background: #fff7d6;
   border: 1px solid #dfb400;
-  border-radius: 8px;
+  border-radius: 14px;
   color: #4e3e00;
   font-size: 13px;
   font-weight: 800;
@@ -299,26 +374,129 @@ textarea {
 
 .notice {
   margin-bottom: 12px;
+  white-space: pre-line;
+}
+
+.due-notice {
+  background: linear-gradient(135deg, #fff7db 0%, #ffffff 55%, #eef6ff 100%);
+  border: 1px solid #f1c85f;
+  box-shadow: 0 16px 36px rgba(136, 93, 12, 0.13);
+  color: var(--ink);
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  white-space: normal;
+}
+
+.notice-heading {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+}
+
+.notice-heading > span {
+  align-items: center;
+  background: #f59e0b;
+  border-radius: 999px;
+  color: #fff;
+  display: inline-flex;
+  flex: 0 0 30px;
+  font-size: 18px;
+  font-weight: 900;
+  height: 30px;
+  justify-content: center;
+  width: 30px;
+}
+
+.notice-heading strong {
+  display: block;
+  font-size: 15px;
+}
+
+.notice-heading p {
+  color: #7b6a35;
+  font-size: 12px;
+  margin: 2px 0 0;
+}
+
+.notice-list {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.notice-list li {
+  align-items: center;
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(223, 180, 0, 0.28);
+  border-radius: 12px;
+  display: grid;
+  gap: 3px;
+  padding: 10px 12px;
+}
+
+.notice-list strong {
+  color: #2f3746;
+  font-size: 15px;
+}
+
+.notice-list span {
+  color: #0f766e;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.notice-list em {
+  color: #768195;
+  font-size: 12px;
+  font-style: normal;
+}
+
+.primary-action {
+  background: linear-gradient(135deg, #2563eb, #0f766e);
+  border-radius: 12px;
+  box-shadow: 0 12px 24px rgba(37, 99, 235, 0.18);
+  height: 30px;
+  min-height: 30px;
+}
+
+.primary-action:hover {
+  filter: brightness(1.02);
+  transform: translateY(-1px);
 }
 
 .controls {
   align-items: start;
-  display: flex;
-  justify-content: space-between;
+  display: grid;
   gap: 12px;
+  grid-template-columns: minmax(200px, 260px) minmax(260px, 1fr);
   margin-top: 14px;
   padding: 14px 16px;
 }
 
 .controls label {
-  min-width: min(280px, 100%);
+  min-width: min(260px, 100%);
 }
 
 .button-row {
-  display: grid;
+  display: flex;
   gap: 8px;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  min-width: min(520px, 100%);
+  justify-content: space-between;
+  justify-self: end;
+  width: min(520px, 100%);
+}
+
+.button-row-left,
+.button-row-right {
+  display: flex;
+  gap: 8px;
+}
+
+.button-row-right {
+  justify-content: flex-end;
 }
 
 .button-row button {
@@ -330,6 +508,21 @@ textarea {
 
 .secondary {
   background: #1d4ed8;
+}
+
+.pin-action {
+  background: #e5e7eb;
+  border: 1px solid #cbd5e1;
+  color: #475467;
+}
+
+.backup-status {
+  color: #667085;
+  font-size: 12px;
+  font-weight: 700;
+  grid-column: 2;
+  margin: 2px 0 0;
+  text-align: right;
 }
 
 .danger {
@@ -346,16 +539,37 @@ textarea {
 }
 
 .summary-card {
-  background: var(--panel);
+  background: rgba(255, 255, 255, 0.9);
   border: 1px solid var(--line);
-  border-radius: 10px;
+  border-radius: 14px;
+  box-shadow: 0 12px 30px rgba(31, 41, 51, 0.08);
+  cursor: pointer;
   padding: 15px;
 }
 
-.summary-card strong {
-  display: block;
-  font-size: 18px;
+.summary-card:focus,
+.summary-card:hover {
+  border-color: #93c5fd;
+  box-shadow: 0 10px 24px rgba(37, 99, 235, 0.12);
+  outline: none;
+}
+
+.summary-title {
+  align-items: baseline;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 10px;
   margin-bottom: 10px;
+}
+
+.summary-title strong {
+  font-size: 18px;
+}
+
+.summary-title span {
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 700;
 }
 
 .summary-meta {
@@ -377,7 +591,10 @@ textarea {
 }
 
 .table-wrap {
-  overflow: hidden;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  overflow: visible;
 }
 
 table {
@@ -394,6 +611,68 @@ td {
   white-space: nowrap;
 }
 
+tbody tr.line-row td {
+  padding: 0 0 12px;
+}
+
+.line-card {
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid #d9e4f4;
+  border-radius: 16px;
+  box-shadow: 0 16px 38px rgba(31, 41, 51, 0.09);
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+}
+
+.line-card-fields {
+  align-items: center;
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.line-field {
+  align-items: center;
+  background: #f8fafc;
+  border: 1px solid #e3eaf5;
+  border-radius: 10px;
+  display: flex;
+  gap: 6px;
+  justify-content: space-between;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  padding: 6px 8px;
+}
+
+.line-field b {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.line-field em {
+  color: #263241;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 800;
+  line-height: 1.2;
+  min-width: 0;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.line-field em:not(.dday) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.line-field .dday {
+  flex: 0 0 auto;
+}
+
 th {
   background: #f8fafc;
   color: var(--muted);
@@ -402,17 +681,18 @@ th {
 }
 
 tbody tr.recent {
-  background: #fff;
+  background: transparent;
 }
 
 tbody tr.old {
-  background: var(--gray-row);
+  background: transparent;
   color: #7b8491;
 }
 
-td.next-soon {
-  background: var(--yellow);
-  box-shadow: inset 0 0 0 1px var(--yellow-border);
+.next-soon {
+  background: #fff7c2;
+  border: 1px solid #ecc94b;
+  border-radius: 12px;
   color: #3f3500;
   font-weight: 800;
 }
@@ -500,24 +780,27 @@ td.next-soon {
 }
 
 .delete-button {
-  background: transparent;
-  border: 1px solid #e6a7a1;
-  color: var(--red);
-  min-height: 34px;
-  padding: 0 10px;
+  background: linear-gradient(135deg, #fff1f0, #ffe4e1);
+  border: 1px solid #f3aaa4;
+  color: #a83b32;
+  height: 30px;
+  min-height: 30px;
+  padding: 0 12px;
 }
 
 .edit-button {
-  background: #ffffff;
+  background: linear-gradient(135deg, #dbeafe, #eff6ff);
   border: 1px solid #93c5fd;
-  color: var(--green);
-  min-height: 34px;
-  padding: 0 10px;
+  color: #1d4ed8;
+  height: 30px;
+  min-height: 30px;
+  padding: 0 12px;
 }
 
 .row-button-group {
-  display: flex;
-  gap: 6px;
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .hidden {
@@ -578,10 +861,13 @@ td.next-soon {
 }
 
 @media (max-width: 880px) {
-  .topbar,
   .controls {
     align-items: stretch;
-    flex-direction: column;
+    grid-template-columns: 1fr;
+  }
+
+  .backup-status {
+    grid-column: 1;
   }
 
   .today-box {
@@ -589,7 +875,7 @@ td.next-soon {
   }
 
   .line-form {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .line-form .form-actions {
@@ -597,7 +883,7 @@ td.next-soon {
   }
 
   .form-actions button {
-    flex: 1;
+    width: 100%;
   }
 
   .table-wrap {
@@ -618,29 +904,15 @@ td.next-soon {
 
   .eyebrow {
     font-size: 12px;
+    min-height: 12px;
   }
 
   h1 {
-    font-size: 28px;
+    font-size: 26px;
   }
 
   .today-box {
     min-width: auto;
-  }
-
-  .entry-panel,
-  .controls,
-  .summary-card {
-    box-shadow: 0 10px 28px rgba(31, 41, 51, 0.08);
-  }
-
-  .line-form {
-    grid-template-columns: 1fr;
-  }
-
-  .form-actions {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
   }
 
   .controls label,
@@ -649,8 +921,16 @@ td.next-soon {
   }
 
   .button-row {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    width: 100%;
+  }
+
+  .button-row-left,
+  .button-row-right {
+    flex: 1;
+  }
+
+  .button-row-right {
+    justify-content: flex-end;
     width: 100%;
   }
 
@@ -686,10 +966,7 @@ td.next-soon {
   }
 
   tbody tr {
-    border: 1px solid var(--line);
-    border-radius: 10px;
-    box-shadow: 0 10px 28px rgba(31, 41, 51, 0.08);
-    overflow: hidden;
+    overflow: visible;
   }
 
   tbody tr.owner-header {
@@ -708,39 +985,30 @@ td.next-soon {
   }
 
   tbody tr.old {
-    background: #eef1f4;
+    background: transparent;
   }
 
   td {
-    align-items: center;
     border-bottom: 1px solid var(--line);
-    display: flex;
-    justify-content: space-between;
-    min-height: 43px;
     padding: 10px 12px;
     white-space: normal;
   }
 
   td::before {
-    color: var(--muted);
-    content: attr(data-label);
-    flex: 0 0 42%;
-    font-size: 12px;
-    font-weight: 800;
-  }
-
-  td.next-soon {
-    border: 1px solid var(--yellow-border);
-    box-shadow: none;
-  }
-
-  td.row-actions {
-    display: block;
-  }
-
-  td.row-actions::before {
-    content: "";
     display: none;
+  }
+
+  .line-card-fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .line-field {
+    min-height: 32px;
+  }
+
+  .line-field b,
+  .line-field em {
+    font-size: 12px;
   }
 
   .row-button-group {
@@ -773,9 +1041,13 @@ td.next-soon {
 
     <main class="app">
       <section class="topbar">
-        <div>
-          <p class="eyebrow">180일 내 명의당 최대 3회선</p>
-          <h1>신규회선 체크</h1>
+        <div class="app-version">v.1.4.1 by 후추</div>
+        <div class="title-block">
+          <p class="eyebrow" aria-hidden="true">&nbsp;</p>
+          <div class="title-line">
+            <h1>180일의 기다림(신규회선 체크)</h1>
+          </div>
+          <p class="tagline">당장 일어납니다. 빨리빨리 신규회선 적습니다.</p>
         </div>
         <div class="today-box">
           <span>오늘</span>
@@ -786,6 +1058,9 @@ td.next-soon {
       <section id="backupNotice" class="notice hidden" aria-label="백업 알림"></section>
 
       <section class="entry-panel" aria-label="신규회선 입력">
+        <div class="panel-title">
+          <strong>회선 추가 입력하기</strong>
+        </div>
         <form id="lineForm" class="line-form">
           <label>
             <span>명의자</span>
@@ -793,7 +1068,7 @@ td.next-soon {
           </label>
           <label>
             <span>통신사</span>
-            <input id="carrierInput" type="text" list="carrierOptions" placeholder="SKT, KT, LGU+" required />
+            <input id="carrierInput" type="text" placeholder="통신사" required />
           </label>
           <label>
             <span>신규날짜</span>
@@ -803,36 +1078,12 @@ td.next-soon {
             <span>신규번호</span>
             <input id="phoneInput" type="tel" inputmode="numeric" autocomplete="off" placeholder="010-0000-0000" required />
           </label>
-          <label>
-            <span>상태</span>
-            <select id="statusInput">
-              <option value="confirmed">확정</option>
-              <option value="planned">예정</option>
-            </select>
-          </label>
-          <label class="memo-field">
-            <span>메모</span>
-            <textarea id="memoInput" rows="2" placeholder="요금제, 유심, 해지 예정 등"></textarea>
-          </label>
-          <div class="carrier-picks" aria-label="통신사 빠른 선택">
-            <button type="button" data-carrier="SKT">SKT</button>
-            <button type="button" data-carrier="KT">KT</button>
-            <button type="button" data-carrier="LGU+">LGU+</button>
-            <button type="button" data-carrier="알뜰폰">알뜰폰</button>
-          </div>
           <div id="duplicateWarning" class="duplicate-warning hidden"></div>
           <div class="form-actions">
             <button id="submitButton" type="submit" class="primary-action">추가</button>
             <button id="cancelEditButton" type="button" class="secondary hidden">취소</button>
           </div>
         </form>
-
-        <datalist id="carrierOptions">
-          <option value="SKT"></option>
-          <option value="KT"></option>
-          <option value="LGU+"></option>
-          <option value="알뜰폰"></option>
-        </datalist>
       </section>
 
       <section class="info-strip" aria-label="저장과 공유 안내">
@@ -842,21 +1093,21 @@ td.next-soon {
 
       <section class="controls" aria-label="목록 관리">
         <label>
-          <span>검색</span>
-          <input id="searchInput" type="search" placeholder="명의자, 번호 끝자리, 통신사, 메모" />
-        </label>
-        <label>
           <span>명의자 보기</span>
           <select id="ownerFilter">
             <option value="all">전체</option>
           </select>
         </label>
         <div class="button-row">
-          <button id="pinButton" type="button" class="secondary">PIN 설정</button>
-          <button id="backupButton" type="button" class="secondary">백업 저장</button>
-          <button id="restoreButton" type="button" class="secondary">백업 불러오기</button>
-          <button id="exportButton" type="button" class="secondary">CSV 저장</button>
+          <div class="button-row-left">
+            <button id="pinButton" type="button" class="secondary pin-action">PIN 설정</button>
+          </div>
+          <div class="button-row-right">
+            <button id="backupButton" type="button" class="secondary">백업 저장</button>
+            <button id="restoreButton" type="button" class="secondary">백업 불러오기</button>
+          </div>
         </div>
+        <p id="backupStatus" class="backup-status"></p>
         <input id="restoreInput" type="file" accept="application/json,.json" hidden />
       </section>
 
@@ -866,14 +1117,7 @@ td.next-soon {
         <table>
           <thead>
             <tr>
-              <th>명의자</th>
-              <th>통신사</th>
-              <th>신규날짜</th>
-              <th>신규번호</th>
-              <th>다음 신규 날짜</th>
-              <th>D-Day</th>
-              <th>상태</th>
-              <th>메모</th>
+              <th>회선정보</th>
               <th></th>
             </tr>
           </thead>
@@ -899,18 +1143,15 @@ const ownerInput = document.querySelector("#ownerInput");
 const carrierInput = document.querySelector("#carrierInput");
 const dateInput = document.querySelector("#dateInput");
 const phoneInput = document.querySelector("#phoneInput");
-const statusInput = document.querySelector("#statusInput");
-const memoInput = document.querySelector("#memoInput");
 const ownerFilter = document.querySelector("#ownerFilter");
-const searchInput = document.querySelector("#searchInput");
 const tableBody = document.querySelector("#lineTable");
 const summaryGrid = document.querySelector("#summaryGrid");
 const emptyState = document.querySelector("#emptyState");
 const todayText = document.querySelector("#todayText");
-const exportButton = document.querySelector("#exportButton");
 const backupButton = document.querySelector("#backupButton");
 const restoreButton = document.querySelector("#restoreButton");
 const restoreInput = document.querySelector("#restoreInput");
+const backupStatus = document.querySelector("#backupStatus");
 const pinButton = document.querySelector("#pinButton");
 const submitButton = document.querySelector("#submitButton");
 const cancelEditButton = document.querySelector("#cancelEditButton");
@@ -942,15 +1183,7 @@ phoneInput.addEventListener("input", () => {
 ownerInput.addEventListener("input", updateDuplicateWarning);
 carrierInput.addEventListener("input", updateDuplicateWarning);
 dateInput.addEventListener("input", updateDuplicateWarning);
-searchInput.addEventListener("input", render);
 ownerFilter.addEventListener("change", render);
-
-document.querySelectorAll("[data-carrier]").forEach((button) => {
-  button.addEventListener("click", () => {
-    carrierInput.value = button.dataset.carrier;
-    updateDuplicateWarning();
-  });
-});
 
 form.addEventListener("submit", (event) => {
   event.preventDefault();
@@ -961,8 +1194,8 @@ form.addEventListener("submit", (event) => {
     carrier: carrierInput.value.trim(),
     openedAt: dateInput.value,
     phone: formatPhoneNumber(phoneInput.value),
-    status: statusInput.value,
-    memo: memoInput.value.trim(),
+    status: records.find((item) => item.id === editingId)?.status || "confirmed",
+    memo: records.find((item) => item.id === editingId)?.memo || "",
     createdAt: records.find((item) => item.id === editingId)?.createdAt || new Date().toISOString(),
   };
 
@@ -980,31 +1213,6 @@ form.addEventListener("submit", (event) => {
   saveRecords();
   resetForm();
   render();
-});
-
-exportButton.addEventListener("click", () => {
-  if (!records.length) return;
-
-  const header = ["명의자", "통신사", "신규날짜", "신규번호", "다음 신규 날짜", "D-Day", "상태", "메모"];
-  const rows = sortedRecords(records).map((record) => {
-    const nextDate = addDays(record.openedAt, 181);
-    return [
-      record.owner,
-      record.carrier,
-      record.openedAt,
-      record.phone,
-      nextDate,
-      formatDday(nextDate),
-      statusLabel(record.status),
-      record.memo,
-    ];
-  });
-
-  const csv = [header, ...rows]
-    .map((row) => row.map((cell) => `"${String(cell || "").replaceAll('"', '""')}"`).join(","))
-    .join("\n");
-
-  downloadText(`신규회선체크_${todayInputDate()}.csv`, "\ufeff" + csv, "text/csv;charset=utf-8");
 });
 
 backupButton.addEventListener("click", () => {
@@ -1030,7 +1238,7 @@ restoreInput.addEventListener("change", () => {
       }
 
       const replace = confirm(
-        `백업에 ${importedRecords.length}개 회선이 있습니다.\n\n확인을 누르면 현재 목록을 백업 데이터로 바꿉니다.\n취소를 누르면 기존 목록 뒤에 추가합니다.`,
+        `백업 파일에 ${importedRecords.length}개 회선이 있습니다.\n\n확인: 현재 목록을 지우고 백업 파일로 교체\n취소: 현재 목록은 두고 백업 파일을 추가`,
       );
 
       records = replace ? importedRecords : dedupeRecords([...records, ...importedRecords]);
@@ -1061,13 +1269,35 @@ tableBody.addEventListener("click", (event) => {
   const deleteButton = event.target.closest("[data-delete-id]");
   if (!deleteButton) return;
 
-  if (editingId === deleteButton.dataset.deleteId) resetForm();
-  records = records.filter((record) => record.id !== deleteButton.dataset.deleteId);
+  const target = records.find((record) => record.id === deleteButton.dataset.deleteId);
+  if (!target) return;
+
+  const ok = confirm(
+    `${target.owner} / ${target.carrier} / ${target.phone}\n신규날짜 ${formatDate(target.openedAt)}\n\n이 회선을 삭제할까요?`,
+  );
+  if (!ok) return;
+
+  if (editingId === target.id) resetForm();
+  records = records.filter((record) => record.id !== target.id);
   saveRecords();
   render();
 });
 
 cancelEditButton.addEventListener("click", resetForm);
+
+summaryGrid.addEventListener("click", (event) => {
+  const card = event.target.closest("[data-summary-owner]");
+  if (!card) return;
+  scrollToOwner(card.dataset.summaryOwner);
+});
+
+summaryGrid.addEventListener("keydown", (event) => {
+  if (event.key !== "Enter" && event.key !== " ") return;
+  const card = event.target.closest("[data-summary-owner]");
+  if (!card) return;
+  event.preventDefault();
+  scrollToOwner(card.dataset.summaryOwner);
+});
 
 pinButton.addEventListener("click", async () => {
   const existing = localStorage.getItem(PIN_KEY);
@@ -1104,6 +1334,7 @@ if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
 function render() {
   appRoot.classList.toggle("has-records", records.length > 0);
   renderOwnerFilter();
+  renderBackupStatus();
   renderBackupNotice();
   renderDueNotice();
   renderSummary();
@@ -1141,6 +1372,7 @@ function renderOwnerFilter() {
 }
 
 function renderBackupNotice() {
+  backupNotice.classList.remove("due-notice");
   const lastBackup = localStorage.getItem(LAST_BACKUP_KEY);
   const daysSinceBackup = lastBackup
     ? Math.floor((dateValue(todayInputDate()) - dateValue(lastBackup.slice(0, 10))) / DAY_MS)
@@ -1150,19 +1382,26 @@ function renderBackupNotice() {
 
   backupNotice.classList.toggle("hidden", (!shouldShow && !dueLines.length) || !records.length);
   if (dueLines.length) {
-    backupNotice.textContent = makeDueNoticeText(dueLines);
+    backupNotice.innerHTML = makeDueNoticeHtml(dueLines);
   } else if (shouldShow && records.length) {
+    backupNotice.classList.remove("due-notice");
     backupNotice.textContent = lastBackup
       ? `마지막 백업 후 ${daysSinceBackup}일이 지났습니다. 백업을 저장해두면 안전합니다.`
       : "아직 백업한 기록이 없습니다. 백업 파일을 하나 만들어두면 안전합니다.";
   }
 }
 
+function renderBackupStatus() {
+  if (!backupStatus) return;
+  const lastBackup = localStorage.getItem(LAST_BACKUP_KEY);
+  backupStatus.textContent = lastBackup ? `최근 백업: ${formatDate(lastBackup.slice(0, 10))}` : "최근 백업 기록이 없습니다.";
+}
+
 function renderDueNotice() {
   const dueLines = getDueOwnerSummaries();
   if (!dueLines.length || !records.length) return;
   backupNotice.classList.remove("hidden");
-  backupNotice.textContent = makeDueNoticeText(dueLines);
+  backupNotice.innerHTML = makeDueNoticeHtml(dueLines);
 }
 
 function renderSummary() {
@@ -1177,10 +1416,14 @@ function renderSummary() {
     const nextDate = getEarliestNextDate(ownerRecords);
     const card = document.createElement("article");
     card.className = "summary-card";
+    card.dataset.summaryOwner = owner;
+    card.tabIndex = 0;
     card.innerHTML = `
-      <strong>${escapeHtml(owner)}</strong>
-      <div class="summary-meta">
+      <div class="summary-title">
+        <strong>${escapeHtml(owner)}</strong>
         <span>등록 ${ownerRecords.length}개 · 180일 내 ${active.length}개 · 예정 ${ownerRecords.filter((record) => record.status === "planned").length}개</span>
+      </div>
+      <div class="summary-meta">
         <div class="summary-date">
           <span>다음 신규회선 가능일</span>
           <b>${formatDate(nextDate)} · ${formatDday(nextDate)}</b>
@@ -1206,8 +1449,9 @@ function renderTable() {
     const collapsed = collapsedOwners.has(owner);
     const header = document.createElement("tr");
     header.className = "owner-header";
+    header.dataset.ownerSection = owner;
     header.innerHTML = `
-      <td colspan="9">
+      <td colspan="2">
         <button type="button" data-owner-toggle="${escapeHtml(owner)}" aria-label="${escapeHtml(owner)} ${collapsed ? "펼치기" : "접기"}" title="${collapsed ? "펼치기" : "접기"}">
           <span class="owner-toggle-icon" aria-hidden="true">${collapsed ? "▸" : "▾"}</span>
           <strong>${escapeHtml(owner)}</strong>
@@ -1223,20 +1467,22 @@ function renderTable() {
       const isRecent = recentIdsByOwner.get(record.owner)?.has(record.id);
       const isEarliestNext = earliestNextByOwner.get(record.owner) === nextDate;
       const row = document.createElement("tr");
-      row.className = `${isRecent ? "recent" : "old"} ${record.status === "planned" ? "planned" : ""}`;
+      row.className = `line-row ${isRecent ? "recent" : "old"} ${record.status === "planned" ? "planned" : ""}`;
       row.innerHTML = `
-        <td data-label="명의자">${escapeHtml(record.owner)}</td>
-        <td data-label="통신사">${escapeHtml(record.carrier)}</td>
-        <td data-label="신규날짜">${formatDate(record.openedAt)}</td>
-        <td data-label="신규번호">${escapeHtml(record.phone)}</td>
-        <td data-label="다음 신규 날짜" class="${isEarliestNext ? "next-soon" : ""}">${formatDate(nextDate)}</td>
-        <td data-label="D-Day"><span class="dday ${ddayClass(nextDate)}">${formatDday(nextDate)}</span></td>
-        <td data-label="상태"><span class="badge ${record.status === "planned" ? "planned" : isRecent ? "recent" : "old"}">${statusLabel(record.status)} · ${isRecent ? "최근 3개" : "이전 회선"}</span></td>
-        <td data-label="메모">${escapeHtml(record.memo || "-")}</td>
-        <td class="row-actions">
-          <div class="row-button-group">
-            <button class="edit-button" type="button" data-edit-id="${record.id}">수정</button>
-            <button class="delete-button" type="button" data-delete-id="${record.id}">삭제</button>
+        <td colspan="2">
+          <div class="line-card">
+            <div class="line-card-fields">
+              <span class="line-field"><b>명의자</b> <em>${escapeHtml(record.owner)}</em></span>
+              <span class="line-field"><b>통신사</b> <em>${escapeHtml(record.carrier)}</em></span>
+              <span class="line-field"><b>신규날짜</b> <em>${formatDate(record.openedAt)}</em></span>
+              <span class="line-field"><b>신규번호</b> <em>${escapeHtml(record.phone)}</em></span>
+              <span class="line-field ${isEarliestNext ? "next-soon" : ""}"><b>다음가능날짜</b> <em>${formatDate(nextDate)}</em></span>
+              <span class="line-field"><b>디데이</b> <em class="dday ${ddayClass(nextDate)}">${formatDday(nextDate)}</em></span>
+            </div>
+            <div class="row-button-group">
+              <button class="edit-button" type="button" data-edit-id="${record.id}">수정</button>
+              <button class="delete-button" type="button" data-delete-id="${record.id}">삭제</button>
+            </div>
           </div>
         </td>
       `;
@@ -1257,15 +1503,10 @@ function renderTable() {
 
 function getVisibleRecords() {
   const filter = ownerFilter.value;
-  const query = searchInput.value.trim().toLowerCase();
 
   return sortedRecords(records).filter((record) => {
     if (filter !== "all" && record.owner !== filter) return false;
-    if (!query) return true;
-    const haystack = [record.owner, record.carrier, record.openedAt, record.phone, record.memo, statusLabel(record.status)]
-      .join(" ")
-      .toLowerCase();
-    return haystack.includes(query) || record.phone.replace(/\D/g, "").endsWith(query.replace(/\D/g, ""));
+    return true;
   });
 }
 
@@ -1278,8 +1519,6 @@ function startEdit(id) {
   carrierInput.value = record.carrier;
   dateInput.value = record.openedAt;
   phoneInput.value = record.phone;
-  statusInput.value = record.status || "confirmed";
-  memoInput.value = record.memo || "";
   submitButton.textContent = "수정 저장";
   cancelEditButton.classList.remove("hidden");
   updateDuplicateWarning();
@@ -1291,7 +1530,6 @@ function resetForm() {
   editingId = null;
   form.reset();
   dateInput.value = todayInputDate();
-  statusInput.value = "confirmed";
   submitButton.textContent = "추가";
   cancelEditButton.classList.add("hidden");
   updateDuplicateWarning();
@@ -1369,13 +1607,43 @@ function getDueOwnerSummaries() {
     .sort((a, b) => a.diff - b.diff || a.owner.localeCompare(b.owner, "ko", { numeric: true }));
 }
 
-function makeDueNoticeText(dueLines) {
-  const preview = dueLines
-    .slice(0, 3)
-    .map((item) => `${item.owner} ${formatDday(item.nextDate)} (${formatDate(item.nextDate)})`)
-    .join(" · ");
-  const rest = dueLines.length > 3 ? ` 외 ${dueLines.length - 3}명` : "";
-  return `신규회선 가능일이 다가왔습니다: ${preview}${rest}`;
+function makeDueNoticeHtml(dueLines) {
+  backupNotice.classList.add("due-notice");
+  const ownerCards = dueLines
+    .map(
+      (item) => `
+        <li>
+          <strong>${escapeHtml(item.owner)}</strong>
+          <span>${formatDday(item.nextDate)}</span>
+          <em>${formatDate(item.nextDate)}</em>
+        </li>
+      `,
+    )
+    .join("");
+
+  return `
+    <div class="notice-heading">
+      <span aria-hidden="true">!</span>
+      <div>
+        <strong>신규회선 가능일이 다가왔습니다.</strong>
+        <p>오늘 처리할 명의자를 한눈에 확인하세요.</p>
+      </div>
+    </div>
+    <ul class="notice-list">${ownerCards}</ul>
+  `;
+}
+
+function scrollToOwner(owner) {
+  if (collapsedOwners.has(owner)) {
+    collapsedOwners.delete(owner);
+    localStorage.setItem(COLLAPSED_KEY, JSON.stringify([...collapsedOwners]));
+    renderTable();
+  }
+
+  const ownerHeader = [...tableBody.querySelectorAll("[data-owner-section]")].find(
+    (section) => section.dataset.ownerSection === owner,
+  );
+  ownerHeader?.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
 function getActiveWithin180(source) {
@@ -1453,6 +1721,12 @@ function savePlainBackup() {
     JSON.stringify(backup, null, 2),
     "application/json;charset=utf-8",
   );
+  const originalText = backupButton.textContent;
+  backupButton.textContent = "저장 완료";
+  window.setTimeout(() => {
+    backupButton.textContent = originalText;
+  }, 1400);
+  renderBackupStatus();
   renderBackupNotice();
 }
 

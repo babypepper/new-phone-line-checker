@@ -11,18 +11,15 @@ const ownerInput = document.querySelector("#ownerInput");
 const carrierInput = document.querySelector("#carrierInput");
 const dateInput = document.querySelector("#dateInput");
 const phoneInput = document.querySelector("#phoneInput");
-const statusInput = document.querySelector("#statusInput");
-const memoInput = document.querySelector("#memoInput");
 const ownerFilter = document.querySelector("#ownerFilter");
-const searchInput = document.querySelector("#searchInput");
 const tableBody = document.querySelector("#lineTable");
 const summaryGrid = document.querySelector("#summaryGrid");
 const emptyState = document.querySelector("#emptyState");
 const todayText = document.querySelector("#todayText");
-const exportButton = document.querySelector("#exportButton");
 const backupButton = document.querySelector("#backupButton");
 const restoreButton = document.querySelector("#restoreButton");
 const restoreInput = document.querySelector("#restoreInput");
+const backupStatus = document.querySelector("#backupStatus");
 const pinButton = document.querySelector("#pinButton");
 const submitButton = document.querySelector("#submitButton");
 const cancelEditButton = document.querySelector("#cancelEditButton");
@@ -54,15 +51,7 @@ phoneInput.addEventListener("input", () => {
 ownerInput.addEventListener("input", updateDuplicateWarning);
 carrierInput.addEventListener("input", updateDuplicateWarning);
 dateInput.addEventListener("input", updateDuplicateWarning);
-searchInput.addEventListener("input", render);
 ownerFilter.addEventListener("change", render);
-
-document.querySelectorAll("[data-carrier]").forEach((button) => {
-  button.addEventListener("click", () => {
-    carrierInput.value = button.dataset.carrier;
-    updateDuplicateWarning();
-  });
-});
 
 form.addEventListener("submit", (event) => {
   event.preventDefault();
@@ -73,8 +62,8 @@ form.addEventListener("submit", (event) => {
     carrier: carrierInput.value.trim(),
     openedAt: dateInput.value,
     phone: formatPhoneNumber(phoneInput.value),
-    status: statusInput.value,
-    memo: memoInput.value.trim(),
+    status: records.find((item) => item.id === editingId)?.status || "confirmed",
+    memo: records.find((item) => item.id === editingId)?.memo || "",
     createdAt: records.find((item) => item.id === editingId)?.createdAt || new Date().toISOString(),
   };
 
@@ -92,31 +81,6 @@ form.addEventListener("submit", (event) => {
   saveRecords();
   resetForm();
   render();
-});
-
-exportButton.addEventListener("click", () => {
-  if (!records.length) return;
-
-  const header = ["명의자", "통신사", "신규날짜", "신규번호", "다음 신규 날짜", "D-Day", "상태", "메모"];
-  const rows = sortedRecords(records).map((record) => {
-    const nextDate = addDays(record.openedAt, 181);
-    return [
-      record.owner,
-      record.carrier,
-      record.openedAt,
-      record.phone,
-      nextDate,
-      formatDday(nextDate),
-      statusLabel(record.status),
-      record.memo,
-    ];
-  });
-
-  const csv = [header, ...rows]
-    .map((row) => row.map((cell) => `"${String(cell || "").replaceAll('"', '""')}"`).join(","))
-    .join("\n");
-
-  downloadText(`신규회선체크_${todayInputDate()}.csv`, "\ufeff" + csv, "text/csv;charset=utf-8");
 });
 
 backupButton.addEventListener("click", () => {
@@ -142,7 +106,7 @@ restoreInput.addEventListener("change", () => {
       }
 
       const replace = confirm(
-        `백업에 ${importedRecords.length}개 회선이 있습니다.\n\n확인을 누르면 현재 목록을 백업 데이터로 바꿉니다.\n취소를 누르면 기존 목록 뒤에 추가합니다.`,
+        `백업 파일에 ${importedRecords.length}개 회선이 있습니다.\n\n확인: 현재 목록을 지우고 백업 파일로 교체\n취소: 현재 목록은 두고 백업 파일을 추가`,
       );
 
       records = replace ? importedRecords : dedupeRecords([...records, ...importedRecords]);
@@ -173,13 +137,35 @@ tableBody.addEventListener("click", (event) => {
   const deleteButton = event.target.closest("[data-delete-id]");
   if (!deleteButton) return;
 
-  if (editingId === deleteButton.dataset.deleteId) resetForm();
-  records = records.filter((record) => record.id !== deleteButton.dataset.deleteId);
+  const target = records.find((record) => record.id === deleteButton.dataset.deleteId);
+  if (!target) return;
+
+  const ok = confirm(
+    `${target.owner} / ${target.carrier} / ${target.phone}\n신규날짜 ${formatDate(target.openedAt)}\n\n이 회선을 삭제할까요?`,
+  );
+  if (!ok) return;
+
+  if (editingId === target.id) resetForm();
+  records = records.filter((record) => record.id !== target.id);
   saveRecords();
   render();
 });
 
 cancelEditButton.addEventListener("click", resetForm);
+
+summaryGrid.addEventListener("click", (event) => {
+  const card = event.target.closest("[data-summary-owner]");
+  if (!card) return;
+  scrollToOwner(card.dataset.summaryOwner);
+});
+
+summaryGrid.addEventListener("keydown", (event) => {
+  if (event.key !== "Enter" && event.key !== " ") return;
+  const card = event.target.closest("[data-summary-owner]");
+  if (!card) return;
+  event.preventDefault();
+  scrollToOwner(card.dataset.summaryOwner);
+});
 
 pinButton.addEventListener("click", async () => {
   const existing = localStorage.getItem(PIN_KEY);
@@ -216,6 +202,7 @@ if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
 function render() {
   appRoot.classList.toggle("has-records", records.length > 0);
   renderOwnerFilter();
+  renderBackupStatus();
   renderBackupNotice();
   renderDueNotice();
   renderSummary();
@@ -253,6 +240,7 @@ function renderOwnerFilter() {
 }
 
 function renderBackupNotice() {
+  backupNotice.classList.remove("due-notice");
   const lastBackup = localStorage.getItem(LAST_BACKUP_KEY);
   const daysSinceBackup = lastBackup
     ? Math.floor((dateValue(todayInputDate()) - dateValue(lastBackup.slice(0, 10))) / DAY_MS)
@@ -262,19 +250,26 @@ function renderBackupNotice() {
 
   backupNotice.classList.toggle("hidden", (!shouldShow && !dueLines.length) || !records.length);
   if (dueLines.length) {
-    backupNotice.textContent = makeDueNoticeText(dueLines);
+    backupNotice.innerHTML = makeDueNoticeHtml(dueLines);
   } else if (shouldShow && records.length) {
+    backupNotice.classList.remove("due-notice");
     backupNotice.textContent = lastBackup
       ? `마지막 백업 후 ${daysSinceBackup}일이 지났습니다. 백업을 저장해두면 안전합니다.`
       : "아직 백업한 기록이 없습니다. 백업 파일을 하나 만들어두면 안전합니다.";
   }
 }
 
+function renderBackupStatus() {
+  if (!backupStatus) return;
+  const lastBackup = localStorage.getItem(LAST_BACKUP_KEY);
+  backupStatus.textContent = lastBackup ? `최근 백업: ${formatDate(lastBackup.slice(0, 10))}` : "최근 백업 기록이 없습니다.";
+}
+
 function renderDueNotice() {
   const dueLines = getDueOwnerSummaries();
   if (!dueLines.length || !records.length) return;
   backupNotice.classList.remove("hidden");
-  backupNotice.textContent = makeDueNoticeText(dueLines);
+  backupNotice.innerHTML = makeDueNoticeHtml(dueLines);
 }
 
 function renderSummary() {
@@ -289,10 +284,14 @@ function renderSummary() {
     const nextDate = getEarliestNextDate(ownerRecords);
     const card = document.createElement("article");
     card.className = "summary-card";
+    card.dataset.summaryOwner = owner;
+    card.tabIndex = 0;
     card.innerHTML = `
-      <strong>${escapeHtml(owner)}</strong>
-      <div class="summary-meta">
+      <div class="summary-title">
+        <strong>${escapeHtml(owner)}</strong>
         <span>등록 ${ownerRecords.length}개 · 180일 내 ${active.length}개 · 예정 ${ownerRecords.filter((record) => record.status === "planned").length}개</span>
+      </div>
+      <div class="summary-meta">
         <div class="summary-date">
           <span>다음 신규회선 가능일</span>
           <b>${formatDate(nextDate)} · ${formatDday(nextDate)}</b>
@@ -318,8 +317,9 @@ function renderTable() {
     const collapsed = collapsedOwners.has(owner);
     const header = document.createElement("tr");
     header.className = "owner-header";
+    header.dataset.ownerSection = owner;
     header.innerHTML = `
-      <td colspan="9">
+      <td colspan="2">
         <button type="button" data-owner-toggle="${escapeHtml(owner)}" aria-label="${escapeHtml(owner)} ${collapsed ? "펼치기" : "접기"}" title="${collapsed ? "펼치기" : "접기"}">
           <span class="owner-toggle-icon" aria-hidden="true">${collapsed ? "▸" : "▾"}</span>
           <strong>${escapeHtml(owner)}</strong>
@@ -335,20 +335,22 @@ function renderTable() {
       const isRecent = recentIdsByOwner.get(record.owner)?.has(record.id);
       const isEarliestNext = earliestNextByOwner.get(record.owner) === nextDate;
       const row = document.createElement("tr");
-      row.className = `${isRecent ? "recent" : "old"} ${record.status === "planned" ? "planned" : ""}`;
+      row.className = `line-row ${isRecent ? "recent" : "old"} ${record.status === "planned" ? "planned" : ""}`;
       row.innerHTML = `
-        <td data-label="명의자">${escapeHtml(record.owner)}</td>
-        <td data-label="통신사">${escapeHtml(record.carrier)}</td>
-        <td data-label="신규날짜">${formatDate(record.openedAt)}</td>
-        <td data-label="신규번호">${escapeHtml(record.phone)}</td>
-        <td data-label="다음 신규 날짜" class="${isEarliestNext ? "next-soon" : ""}">${formatDate(nextDate)}</td>
-        <td data-label="D-Day"><span class="dday ${ddayClass(nextDate)}">${formatDday(nextDate)}</span></td>
-        <td data-label="상태"><span class="badge ${record.status === "planned" ? "planned" : isRecent ? "recent" : "old"}">${statusLabel(record.status)} · ${isRecent ? "최근 3개" : "이전 회선"}</span></td>
-        <td data-label="메모">${escapeHtml(record.memo || "-")}</td>
-        <td class="row-actions">
-          <div class="row-button-group">
-            <button class="edit-button" type="button" data-edit-id="${record.id}">수정</button>
-            <button class="delete-button" type="button" data-delete-id="${record.id}">삭제</button>
+        <td colspan="2">
+          <div class="line-card">
+            <div class="line-card-fields">
+              <span class="line-field"><b>명의자</b> <em>${escapeHtml(record.owner)}</em></span>
+              <span class="line-field"><b>통신사</b> <em>${escapeHtml(record.carrier)}</em></span>
+              <span class="line-field"><b>신규날짜</b> <em>${formatDate(record.openedAt)}</em></span>
+              <span class="line-field"><b>신규번호</b> <em>${escapeHtml(record.phone)}</em></span>
+              <span class="line-field ${isEarliestNext ? "next-soon" : ""}"><b>다음가능날짜</b> <em>${formatDate(nextDate)}</em></span>
+              <span class="line-field"><b>디데이</b> <em class="dday ${ddayClass(nextDate)}">${formatDday(nextDate)}</em></span>
+            </div>
+            <div class="row-button-group">
+              <button class="edit-button" type="button" data-edit-id="${record.id}">수정</button>
+              <button class="delete-button" type="button" data-delete-id="${record.id}">삭제</button>
+            </div>
           </div>
         </td>
       `;
@@ -369,15 +371,10 @@ function renderTable() {
 
 function getVisibleRecords() {
   const filter = ownerFilter.value;
-  const query = searchInput.value.trim().toLowerCase();
 
   return sortedRecords(records).filter((record) => {
     if (filter !== "all" && record.owner !== filter) return false;
-    if (!query) return true;
-    const haystack = [record.owner, record.carrier, record.openedAt, record.phone, record.memo, statusLabel(record.status)]
-      .join(" ")
-      .toLowerCase();
-    return haystack.includes(query) || record.phone.replace(/\D/g, "").endsWith(query.replace(/\D/g, ""));
+    return true;
   });
 }
 
@@ -390,8 +387,6 @@ function startEdit(id) {
   carrierInput.value = record.carrier;
   dateInput.value = record.openedAt;
   phoneInput.value = record.phone;
-  statusInput.value = record.status || "confirmed";
-  memoInput.value = record.memo || "";
   submitButton.textContent = "수정 저장";
   cancelEditButton.classList.remove("hidden");
   updateDuplicateWarning();
@@ -403,7 +398,6 @@ function resetForm() {
   editingId = null;
   form.reset();
   dateInput.value = todayInputDate();
-  statusInput.value = "confirmed";
   submitButton.textContent = "추가";
   cancelEditButton.classList.add("hidden");
   updateDuplicateWarning();
@@ -481,13 +475,43 @@ function getDueOwnerSummaries() {
     .sort((a, b) => a.diff - b.diff || a.owner.localeCompare(b.owner, "ko", { numeric: true }));
 }
 
-function makeDueNoticeText(dueLines) {
-  const preview = dueLines
-    .slice(0, 3)
-    .map((item) => `${item.owner} ${formatDday(item.nextDate)} (${formatDate(item.nextDate)})`)
-    .join(" · ");
-  const rest = dueLines.length > 3 ? ` 외 ${dueLines.length - 3}명` : "";
-  return `신규회선 가능일이 다가왔습니다: ${preview}${rest}`;
+function makeDueNoticeHtml(dueLines) {
+  backupNotice.classList.add("due-notice");
+  const ownerCards = dueLines
+    .map(
+      (item) => `
+        <li>
+          <strong>${escapeHtml(item.owner)}</strong>
+          <span>${formatDday(item.nextDate)}</span>
+          <em>${formatDate(item.nextDate)}</em>
+        </li>
+      `,
+    )
+    .join("");
+
+  return `
+    <div class="notice-heading">
+      <span aria-hidden="true">!</span>
+      <div>
+        <strong>신규회선 가능일이 다가왔습니다.</strong>
+        <p>오늘 처리할 명의자를 한눈에 확인하세요.</p>
+      </div>
+    </div>
+    <ul class="notice-list">${ownerCards}</ul>
+  `;
+}
+
+function scrollToOwner(owner) {
+  if (collapsedOwners.has(owner)) {
+    collapsedOwners.delete(owner);
+    localStorage.setItem(COLLAPSED_KEY, JSON.stringify([...collapsedOwners]));
+    renderTable();
+  }
+
+  const ownerHeader = [...tableBody.querySelectorAll("[data-owner-section]")].find(
+    (section) => section.dataset.ownerSection === owner,
+  );
+  ownerHeader?.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
 function getActiveWithin180(source) {
@@ -565,6 +589,12 @@ function savePlainBackup() {
     JSON.stringify(backup, null, 2),
     "application/json;charset=utf-8",
   );
+  const originalText = backupButton.textContent;
+  backupButton.textContent = "저장 완료";
+  window.setTimeout(() => {
+    backupButton.textContent = originalText;
+  }, 1400);
+  renderBackupStatus();
   renderBackupNotice();
 }
 
