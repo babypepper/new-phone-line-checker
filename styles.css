@@ -145,7 +145,6 @@ button:hover {
 
 .topbar {
   align-items: center;
-  background: #f8f8f8;
   display: grid;
   gap: 10px;
   justify-items: stretch;
@@ -155,7 +154,6 @@ button:hover {
 }
 
 .title-block {
-  background: #f8f8f8;
   display: grid;
   justify-items: center;
   min-width: 0;
