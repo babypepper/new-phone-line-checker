@@ -5,12 +5,15 @@ const css = await readFile(new URL("./styles.css", import.meta.url), "utf8");
 const js = await readFile(new URL("./app.js", import.meta.url), "utf8");
 const splash = await readFile(new URL("./splash.png", import.meta.url));
 const splashDataUrl = `data:image/png;base64,${splash.toString("base64")}`;
+const titleBanner = await readFile(new URL("./title-banner.jpg", import.meta.url));
+const titleBannerDataUrl = `data:image/jpeg;base64,${titleBanner.toString("base64")}`;
 
 const standalone = html
   .replace(/\s*<link rel="manifest" href="\.\/manifest\.json" \/>\n/, "")
   .replace(/\s*<link rel="icon" href="\.\/icon\.svg" \/>\n/, "")
   .replace(/\s*<link rel="apple-touch-icon" href="\.\/icon\.svg" \/>\n/, "")
   .replaceAll("./splash.png", splashDataUrl)
+  .replaceAll("./title-banner.jpg", titleBannerDataUrl)
   .replace(
     /\s*<link rel="stylesheet" href="\.\/styles\.css\?v=\d+" \/>\n/,
     `\n    <style>\n${css.replaceAll("</style", "<\\/style")}\n    </style>\n`,

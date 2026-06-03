@@ -145,19 +145,28 @@ button:hover {
 
 .topbar {
   align-items: center;
+  background: #f8f8f8;
   display: grid;
-  gap: 8px;
-  justify-items: center;
-  margin-bottom: 14px;
+  gap: 10px;
+  justify-items: stretch;
+  margin-bottom: 8px;
   position: relative;
-  text-align: center;
+  text-align: left;
 }
 
 .title-block {
+  background: #f8f8f8;
   display: grid;
-  gap: 4px;
   justify-items: center;
   min-width: 0;
+  width: 100%;
+}
+
+.title-banner {
+  display: block;
+  height: auto;
+  object-fit: contain;
+  width: 100%;
 }
 
 .title-line {
@@ -189,31 +198,46 @@ h1 {
 }
 
 .today-box {
-  align-items: flex-end;
-  background: rgba(255, 255, 255, 0.86);
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  box-shadow: 0 12px 28px rgba(31, 41, 51, 0.08);
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  min-width: 160px;
-  padding: 12px 14px;
+  align-items: baseline;
+  display: inline-flex;
+  gap: 7px;
+  min-width: 0;
+  padding: 0;
 }
 
 .today-box span {
-  color: var(--muted);
-  font-size: 13px;
+  color: #263241;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.today-box span::after {
+  content: "|";
+  margin-left: 7px;
+}
+
+.today-box strong {
+  color: #263241;
+  font-size: 14px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.top-meta {
+  align-items: end;
+  display: flex;
+  justify-content: space-between;
+  min-width: 0;
+  width: 100%;
 }
 
 .app-version {
-  color: #8a94a6;
+  color: #333d49;
   font-size: 11px;
   font-weight: 800;
-  justify-self: stretch;
   line-height: 1;
   text-align: right;
-  width: 100%;
+  white-space: nowrap;
 }
 
 .entry-panel,
@@ -477,24 +501,17 @@ textarea {
 }
 
 .controls {
-  align-items: start;
   display: grid;
-  gap: 12px;
-  grid-template-columns: minmax(200px, 260px) minmax(260px, 1fr);
-  margin-top: 14px;
-  padding: 14px 16px;
-}
-
-.controls label {
-  min-width: min(260px, 100%);
+  gap: 8px;
+  margin-top: 10px;
+  padding: 10px 12px;
 }
 
 .button-row {
   display: flex;
   gap: 8px;
   justify-content: space-between;
-  justify-self: end;
-  width: min(520px, 100%);
+  width: 100%;
 }
 
 .button-row-left,
@@ -514,6 +531,10 @@ textarea {
   white-space: nowrap;
 }
 
+.button-row-right button {
+  width: 82px;
+}
+
 .secondary {
   background: #1d4ed8;
 }
@@ -528,9 +549,19 @@ textarea {
   color: #667085;
   font-size: 12px;
   font-weight: 700;
-  grid-column: 2;
   margin: 2px 0 0;
   text-align: right;
+}
+
+.visually-hidden {
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  height: 1px;
+  overflow: hidden;
+  position: absolute;
+  top: auto;
+  white-space: nowrap;
+  width: 1px;
 }
 
 .danger {
@@ -542,7 +573,7 @@ textarea {
 .summary-grid {
   display: grid;
   gap: 8px;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   margin: 10px 0;
 }
 
@@ -596,12 +627,18 @@ textarea {
   display: flex;
   gap: 8px;
   justify-content: space-between;
+  min-width: 0;
   padding: 7px 9px;
 }
 
-.summary-date span,
-.summary-date b {
+.summary-date span {
   white-space: nowrap;
+}
+
+.summary-date b {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  text-align: right;
 }
 
 .table-wrap {
@@ -635,8 +672,8 @@ tbody tr.line-row td {
   border-radius: 10px;
   box-shadow: 0 8px 18px rgba(31, 41, 51, 0.06);
   display: grid;
-  gap: 7px;
-  padding: 8px;
+  gap: 8px;
+  padding: 9px;
 }
 
 .line-card-head {
@@ -656,13 +693,13 @@ tbody tr.line-row td {
 
 .line-card-head strong {
   color: #16202a;
-  font-size: 14px;
+  font-size: 15px;
   white-space: nowrap;
 }
 
 .line-card-head span {
   color: var(--muted);
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 800;
   min-width: 0;
   overflow: hidden;
@@ -683,16 +720,16 @@ tbody tr.line-row td {
   border: 1px solid #e3eaf5;
   border-radius: 8px;
   display: flex;
-  gap: 6px;
+  gap: 5px;
   justify-content: space-between;
   min-width: 0;
   overflow-wrap: anywhere;
-  padding: 5px 7px;
+  padding: 6px 7px;
 }
 
 .line-field b {
   color: var(--muted);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 800;
   line-height: 1.2;
   white-space: nowrap;
@@ -700,7 +737,7 @@ tbody tr.line-row td {
 
 .line-field em {
   color: #263241;
-  font-size: 11px;
+  font-size: 12px;
   font-style: normal;
   font-weight: 800;
   line-height: 1.2;
@@ -911,18 +948,15 @@ tbody tr.old {
   font-size: 18px;
 }
 
+@media (max-width: 1100px) {
+  .summary-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
 @media (max-width: 880px) {
   .controls {
     align-items: stretch;
-    grid-template-columns: 1fr;
-  }
-
-  .backup-status {
-    grid-column: 1;
-  }
-
-  .today-box {
-    align-items: flex-start;
   }
 
   .line-form {
@@ -950,7 +984,7 @@ tbody tr.old {
 
   .topbar {
     gap: 8px;
-    margin-bottom: 10px;
+    margin-bottom: 7px;
   }
 
   .eyebrow {
@@ -962,13 +996,13 @@ tbody tr.old {
     font-size: 25px;
   }
 
-  .today-box {
-    min-width: auto;
+  .title-banner {
+    width: 100%;
   }
 
-  .controls label,
-  .button-row button {
-    width: 100%;
+  .today-box span,
+  .today-box strong {
+    font-size: 13px;
   }
 
   .button-row {
@@ -982,7 +1016,10 @@ tbody tr.old {
 
   .button-row-right {
     justify-content: flex-end;
-    width: 100%;
+  }
+
+  .button-row-right button {
+    width: 74px;
   }
 
   .info-strip {
@@ -1054,12 +1091,13 @@ tbody tr.old {
   }
 
   .line-field {
-    min-height: 30px;
+    min-height: 32px;
+    padding: 5px 6px;
   }
 
   .line-field b,
   .line-field em {
-    font-size: 10px;
+    font-size: 12px;
   }
 
   .line-card-head {
@@ -1072,11 +1110,11 @@ tbody tr.old {
   }
 
   .line-card-head strong {
-    font-size: 13px;
+    font-size: 15px;
   }
 
   .line-card-head span {
-    font-size: 11px;
+    font-size: 14px;
   }
 
   .row-button-group {

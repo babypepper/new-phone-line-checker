@@ -36,7 +36,7 @@ let collapsedOwners = loadCollapsedOwners();
 let editingId = null;
 
 dateInput.value = todayInputDate();
-todayText.textContent = formatDate(todayInputDate());
+todayText.textContent = formatCompactDate(todayInputDate());
 pinButton.textContent = localStorage.getItem(PIN_KEY) ? "PIN 변경" : "PIN 설정";
 
 initSplashScreen();
@@ -349,8 +349,8 @@ function renderTable() {
               </div>
             </div>
             <div class="line-card-fields">
-              <span class="line-field"><b>개통</b> <em>${formatCompactDate(record.openedAt)}</em></span>
-              <span class="line-field ${isEarliestNext ? "next-soon" : ""}"><b>가능</b> <em>${formatCompactDate(nextDate)}</em></span>
+              <span class="line-field"><b>개통</b> <em>${formatTinyDate(record.openedAt)}</em></span>
+              <span class="line-field ${isEarliestNext ? "next-soon" : ""}"><b>가능</b> <em>${formatTinyDate(nextDate)}</em></span>
               <span class="line-field"><b>상태</b> <em class="dday ${ddayClass(nextDate)}">${formatDday(nextDate)}</em></span>
             </div>
           </div>
@@ -692,6 +692,10 @@ function formatCompactDate(dateString) {
   const month = String(date.getUTCMonth() + 1).padStart(2, "0");
   const day = String(date.getUTCDate()).padStart(2, "0");
   return `${year}.${month}.${day}(${weekdays[date.getUTCDay()]})`;
+}
+
+function formatTinyDate(dateString) {
+  return dateString.replaceAll("-", "");
 }
 
 function formatDday(dateString) {

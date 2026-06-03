@@ -10,7 +10,7 @@
     <link rel="manifest" href="./manifest.json" />
     <link rel="icon" href="./icon.svg" />
     <link rel="apple-touch-icon" href="./icon.svg" />
-    <link rel="stylesheet" href="./styles.css?v=151" />
+    <link rel="stylesheet" href="./styles.css?v=153" />
   </head>
   <body>
     <div id="splashScreen" class="splash-screen" aria-label="시작 화면">
@@ -29,17 +29,15 @@
 
     <main class="app">
       <section class="topbar">
-        <div class="app-version">v.1.5.1 by 후추</div>
         <div class="title-block">
-          <p class="eyebrow" aria-hidden="true">&nbsp;</p>
-          <div class="title-line">
-            <h1>신규회선 날짜체크</h1>
-          </div>
-          <p class="tagline">메모는 미래의 나에게 보내는 편지다.</p>
+          <img class="title-banner" src="./title-banner.jpg" alt="신규회선 날짜체크 - 메모는 미래의 나에게 보내는 편지다" />
         </div>
-        <div class="today-box">
-          <span>오늘</span>
-          <strong id="todayText"></strong>
+        <div class="top-meta">
+          <div class="today-box">
+            <span>오늘</span>
+            <strong id="todayText"></strong>
+          </div>
+          <div class="app-version">v.1.5.2 by 후추</div>
         </div>
       </section>
 
@@ -80,19 +78,16 @@
       </section>
 
       <section class="controls" aria-label="목록 관리">
-        <label>
-          <span>명의자 보기</span>
-          <select id="ownerFilter">
-            <option value="all">전체</option>
-          </select>
-        </label>
+        <select id="ownerFilter" class="visually-hidden" aria-hidden="true" tabindex="-1">
+          <option value="all">전체</option>
+        </select>
         <div class="button-row">
           <div class="button-row-left">
             <button id="pinButton" type="button" class="secondary pin-action">PIN 설정</button>
           </div>
           <div class="button-row-right">
-            <button id="backupButton" type="button" class="secondary">백업 저장</button>
-            <button id="restoreButton" type="button" class="secondary">백업 불러오기</button>
+            <button id="backupButton" type="button" class="secondary">백업저장</button>
+            <button id="restoreButton" type="button" class="secondary">불러오기</button>
           </div>
         </div>
         <p id="backupStatus" class="backup-status"></p>
@@ -118,6 +113,6 @@
       </section>
     </main>
 
-    <script src="./app.js?v=151"></script>
+    <script src="./app.js?v=153"></script>
   </body>
 </html>
