@@ -10,7 +10,7 @@
 2. PowerShell에서 아래 명령을 실행합니다.
 
 ```powershell
-.\publish-content.ps1
+.\publish-content.bat
 ```
 
 이 스크립트가 GitHub 최신 내용 가져오기, 단일 HTML 갱신, 커밋, 업로드까지 한 번에 처리합니다.
