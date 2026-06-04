@@ -1,13 +1,12 @@
-const CACHE_NAME = "telecom-line-checker-v155";
+const CACHE_NAME = "telecom-line-checker-v156";
 const APP_FILES = [
   "./",
   "./index.html",
-  "./styles.css?v=155",
-  "./app.js?v=155",
+  "./styles.css?v=156",
+  "./app.js?v=156",
   "./manifest.json",
   "./icon.svg",
   "./splash.png",
-  "./title-banner.png",
 ];
 
 self.addEventListener("install", (event) => {

@@ -5,7 +5,18 @@ const COLLAPSED_KEY = "telecom-line-checker.collapsed-owners.v1";
 const DAY_MS = 24 * 60 * 60 * 1000;
 const DUE_SOON_DAYS = 7;
 
+// 제목과 아래 문구는 여기만 수정하면 화면에 바로 반영됩니다.
+const APP_TITLE = "신규회선 날짜체크";
+const TAGLINES = [
+  "- 메모는 미래의 나에게 보내는 편지다.",
+  "아이디어는 실행되지 않으면 아무 가치가 없다.",
+  "가장 희미한 잉크도 가장 뛰어난 기억력보다 낫다.",
+  "적지 않은 생각은 존재하지 않는 생각과 같다.",
+];
+
 const appRoot = document.querySelector(".app");
+const appTitle = document.querySelector("#appTitle");
+const taglineText = document.querySelector("#taglineText");
 const form = document.querySelector("#lineForm");
 const ownerInput = document.querySelector("#ownerInput");
 const carrierInput = document.querySelector("#carrierInput");
@@ -35,11 +46,14 @@ let records = loadRecords();
 let collapsedOwners = loadCollapsedOwners();
 let editingId = null;
 
+document.title = APP_TITLE;
+if (appTitle) appTitle.textContent = APP_TITLE;
 dateInput.value = todayInputDate();
 todayText.textContent = formatCompactDate(todayInputDate());
 pinButton.textContent = localStorage.getItem(PIN_KEY) ? "PIN 변경" : "PIN 설정";
 
 initSplashScreen();
+initTaglineRotator();
 initPinLock();
 render();
 
@@ -222,6 +236,44 @@ function initSplashScreen() {
   }, displayTime);
 }
 
+function initTaglineRotator() {
+  if (!taglineText || !TAGLINES.length) return;
+
+  const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let index = 0;
+
+  if (prefersReducedMotion) {
+    taglineText.textContent = TAGLINES[0];
+    return;
+  }
+
+  const typeCurrent = () => {
+    const phrase = TAGLINES[index];
+    let cursor = 0;
+    taglineText.textContent = "";
+    taglineText.classList.add("is-typing");
+
+    const typeTimer = window.setInterval(() => {
+      cursor += 1;
+      taglineText.textContent = phrase.slice(0, cursor);
+      if (cursor < phrase.length) return;
+
+      window.clearInterval(typeTimer);
+      taglineText.classList.remove("is-typing");
+      window.setTimeout(() => {
+        taglineText.classList.add("is-hiding");
+        window.setTimeout(() => {
+          taglineText.classList.remove("is-hiding");
+          index = (index + 1) % TAGLINES.length;
+          typeCurrent();
+        }, 260);
+      }, 3000);
+    }, 34);
+  };
+
+  typeCurrent();
+}
+
 function renderOwnerFilter() {
   const selected = ownerFilter.value;
   const owners = [...new Set(records.map((record) => record.owner))].sort((a, b) =>
@@ -294,6 +346,10 @@ function renderSummary() {
       <div class="summary-meta">
         <div class="summary-date">
           <span>다음 신규회선 가능일</span>
+          <small class="summary-mobile-owner">${escapeHtml(owner)}</small>
+          <small class="summary-mobile-count">등록${ownerRecords.length}개,180일 내 ${active.length}개</small>
+          <small class="summary-mobile-date">${formatCompactDate(nextDate)}</small>
+          <small class="summary-mobile-dday">${formatDdayTight(nextDate)}</small>
           <b>${formatCompactDate(nextDate)} · ${formatDday(nextDate)}</b>
         </div>
       </div>
@@ -485,8 +541,8 @@ function makeDueNoticeHtml(dueLines) {
         <li>
           <strong>${escapeHtml(item.owner)}</strong>
           <span>
-            <b>${formatDday(item.nextDate)}</b>
-            <em>${formatCompactDate(item.nextDate)}</em>
+            <b>${formatDdayTight(item.nextDate)}</b>
+            <em>${formatMobileNoticeDate(item.nextDate)}</em>
           </span>
         </li>
       `,
@@ -698,11 +754,21 @@ function formatTinyDate(dateString) {
   return dateString.replaceAll("-", "");
 }
 
+function formatMobileNoticeDate(dateString) {
+  const date = fromInputDate(dateString);
+  const weekdays = ["일", "월", "화", "수", "목", "금", "토"];
+  return `${formatTinyDate(dateString)}(${weekdays[date.getUTCDay()]})`;
+}
+
 function formatDday(dateString) {
   const diff = Math.floor((dateValue(dateString) - dateValue(todayInputDate())) / DAY_MS);
   if (diff > 0) return `D-${diff}`;
   if (diff === 0) return "오늘 가능";
   return `${Math.abs(diff)}일 지남`;
+}
+
+function formatDdayTight(dateString) {
+  return formatDday(dateString).replace("오늘 가능", "오늘가능").replace("일 지남", "일지남");
 }
 
 function ddayClass(dateString) {
