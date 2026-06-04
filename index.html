@@ -19,7 +19,7 @@
 
     <main class="app">
       <section class="topbar">
-        <div class="app-version">v.1.6.0 by 후추</div>
+        <div class="app-version">v.1.6.1 by 후추</div>
         <div class="title-block">
           <h1 id="appTitle">신규회선 날짜체크</h1>
           <p id="taglineText" class="tagline" aria-live="polite"></p>
@@ -101,17 +101,13 @@
     <dialog id="noticeDialog" class="notice-dialog" aria-labelledby="noticeTitle">
       <form method="dialog" class="notice-card">
         <div class="notice-card-head">
-          <strong id="noticeTitle">공지</strong>
+          <strong id="noticeTitle">공지사항</strong>
           <button id="noticeCloseButton" type="button" class="mini-action">닫기</button>
         </div>
-        <textarea id="noticeTextInput" aria-label="공지 내용"></textarea>
-        <div class="notice-actions">
-          <button id="noticeResetButton" type="button" class="mini-action quiet">기본</button>
-          <button id="noticeSaveButton" type="button" class="mini-action">저장</button>
-        </div>
+        <div id="noticeContent" class="notice-content" aria-label="공지 내용"></div>
       </form>
     </dialog>
 
-    <script src="./app.js?v=160"></script>
+    <script src="./app.js?v=161"></script>
   </body>
 </html>

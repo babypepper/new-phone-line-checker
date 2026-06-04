@@ -1,7 +1,6 @@
 const STORAGE_KEY = "telecom-line-checker.records.v1";
 const LAST_BACKUP_KEY = "telecom-line-checker.last-backup.v1";
 const COLLAPSED_KEY = "telecom-line-checker.collapsed-owners.v1";
-const NOTICE_KEY = "telecom-line-checker.notice.v1";
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 // 제목과 아래 문구는 여기만 수정하면 화면에 바로 반영됩니다.
@@ -12,7 +11,13 @@ const TAGLINES = [
   "가장 희미한 잉크도 가장 뛰어난 기억력보다 낫다.",
   "적지 않은 생각은 존재하지 않는 생각과 같다.",
 ];
-const DEFAULT_NOTICE = `v.1.6.0 업데이트
+const DEFAULT_NOTICE = `v.1.6.1 업데이트
+- 공지창을 읽기 전용으로 변경했습니다.
+- 공지 버튼을 갈색으로 변경했습니다.
+- 다음 신규회선 가능일 카드의 날짜 줄바꿈을 정리했습니다.
+- 명의자별 요약 카드 배경을 홀짝으로 다르게 표시했습니다.
+
+v.1.6.0 업데이트
 - 상단 가능일 알림을 삭제했습니다.
 - 오늘 날짜 줄 오른쪽에 공지, 저장, 로드 버튼을 배치했습니다.
 - PIN 설정 기능을 제거했습니다.
@@ -44,10 +49,8 @@ const emptyState = document.querySelector("#emptyState");
 const todayText = document.querySelector("#todayText");
 const noticeButton = document.querySelector("#noticeButton");
 const noticeDialog = document.querySelector("#noticeDialog");
-const noticeTextInput = document.querySelector("#noticeTextInput");
+const noticeContent = document.querySelector("#noticeContent");
 const noticeCloseButton = document.querySelector("#noticeCloseButton");
-const noticeSaveButton = document.querySelector("#noticeSaveButton");
-const noticeResetButton = document.querySelector("#noticeResetButton");
 const backupButton = document.querySelector("#backupButton");
 const restoreButton = document.querySelector("#restoreButton");
 const restoreInput = document.querySelector("#restoreInput");
@@ -182,8 +185,6 @@ cancelEditButton.addEventListener("click", resetForm);
 
 noticeButton.addEventListener("click", openNoticeDialog);
 noticeCloseButton.addEventListener("click", closeNoticeDialog);
-noticeSaveButton.addEventListener("click", saveNoticeText);
-noticeResetButton.addEventListener("click", resetNoticeText);
 
 summaryGrid.addEventListener("click", (event) => {
   const card = event.target.closest("[data-summary-owner]");
@@ -286,28 +287,17 @@ function renderBackupStatus() {
 }
 
 function openNoticeDialog() {
-  noticeTextInput.value = localStorage.getItem(NOTICE_KEY) || DEFAULT_NOTICE;
+  noticeContent.textContent = DEFAULT_NOTICE;
   if (typeof noticeDialog.showModal === "function") {
     noticeDialog.showModal();
   } else {
     noticeDialog.setAttribute("open", "");
   }
-  noticeTextInput.focus();
 }
 
 function closeNoticeDialog() {
   noticeDialog.close?.();
   noticeDialog.removeAttribute("open");
-}
-
-function saveNoticeText() {
-  localStorage.setItem(NOTICE_KEY, noticeTextInput.value.trim() || DEFAULT_NOTICE);
-  closeNoticeDialog();
-}
-
-function resetNoticeText() {
-  noticeTextInput.value = DEFAULT_NOTICE;
-  localStorage.removeItem(NOTICE_KEY);
 }
 
 function renderSummary() {
@@ -336,7 +326,7 @@ function renderSummary() {
           <small class="summary-mobile-count">등록${ownerRecords.length}개,180일 내 ${active.length}개</small>
           <small class="summary-mobile-date">${formatCompactDate(nextDate)}</small>
           <small class="summary-mobile-dday">${formatDdayTight(nextDate)}</small>
-          <b>${formatCompactDate(nextDate)} · ${formatDday(nextDate)}</b>
+          <b><span class="summary-date-value">${formatCompactDate(nextDate)}</span><span class="summary-dday-value">${formatDday(nextDate)}</span></b>
         </div>
       </div>
     `;

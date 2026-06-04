@@ -283,6 +283,11 @@ h1 {
   white-space: nowrap;
 }
 
+#noticeButton {
+  background: #8a4f22;
+  border-color: #6f3f1b;
+}
+
 .mini-action.quiet {
   background: #fff;
   border-color: #cbd5e1;
@@ -634,6 +639,14 @@ textarea {
   padding: 10px;
 }
 
+.summary-card:nth-child(odd) {
+  background: rgba(255, 255, 255, 0.96);
+}
+
+.summary-card:nth-child(even) {
+  background: rgba(248, 250, 252, 0.96);
+}
+
 .summary-card:focus,
 .summary-card:hover {
   border-color: #93c5fd;
@@ -667,14 +680,13 @@ textarea {
 }
 
 .summary-date {
-  align-items: center;
+  align-items: start;
   background: #eef6f3;
   border: 1px solid #c8dbd2;
   border-radius: 8px;
   color: #244a42;
-  display: flex;
-  gap: 8px;
-  justify-content: space-between;
+  display: grid;
+  gap: 5px;
   min-width: 0;
   padding: 7px 9px;
 }
@@ -684,9 +696,17 @@ textarea {
 }
 
 .summary-date b {
+  align-items: center;
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
   min-width: 0;
-  overflow-wrap: anywhere;
   text-align: right;
+}
+
+.summary-dday-value::before {
+  content: "·";
+  margin-right: 6px;
 }
 
 .summary-mobile-owner,
@@ -1020,17 +1040,17 @@ tbody tr.old {
   font-weight: 900;
 }
 
-.notice-card textarea {
+.notice-content {
+  background: #f8fafc;
+  border: 1px solid #dbe4e8;
+  border-radius: 10px;
+  color: #263241;
   font-size: 13px;
   line-height: 1.55;
   min-height: 260px;
-  resize: vertical;
-}
-
-.notice-actions {
-  display: flex;
-  gap: 6px;
-  justify-content: flex-end;
+  overflow: auto;
+  padding: 12px;
+  white-space: pre-line;
 }
 
 .empty-state {

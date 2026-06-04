@@ -293,6 +293,11 @@ h1 {
   white-space: nowrap;
 }
 
+#noticeButton {
+  background: #8a4f22;
+  border-color: #6f3f1b;
+}
+
 .mini-action.quiet {
   background: #fff;
   border-color: #cbd5e1;
@@ -644,6 +649,14 @@ textarea {
   padding: 10px;
 }
 
+.summary-card:nth-child(odd) {
+  background: rgba(255, 255, 255, 0.96);
+}
+
+.summary-card:nth-child(even) {
+  background: rgba(248, 250, 252, 0.96);
+}
+
 .summary-card:focus,
 .summary-card:hover {
   border-color: #93c5fd;
@@ -677,14 +690,13 @@ textarea {
 }
 
 .summary-date {
-  align-items: center;
+  align-items: start;
   background: #eef6f3;
   border: 1px solid #c8dbd2;
   border-radius: 8px;
   color: #244a42;
-  display: flex;
-  gap: 8px;
-  justify-content: space-between;
+  display: grid;
+  gap: 5px;
   min-width: 0;
   padding: 7px 9px;
 }
@@ -694,9 +706,17 @@ textarea {
 }
 
 .summary-date b {
+  align-items: center;
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
   min-width: 0;
-  overflow-wrap: anywhere;
   text-align: right;
+}
+
+.summary-dday-value::before {
+  content: "·";
+  margin-right: 6px;
 }
 
 .summary-mobile-owner,
@@ -1030,17 +1050,17 @@ tbody tr.old {
   font-weight: 900;
 }
 
-.notice-card textarea {
+.notice-content {
+  background: #f8fafc;
+  border: 1px solid #dbe4e8;
+  border-radius: 10px;
+  color: #263241;
   font-size: 13px;
   line-height: 1.55;
   min-height: 260px;
-  resize: vertical;
-}
-
-.notice-actions {
-  display: flex;
-  gap: 6px;
-  justify-content: flex-end;
+  overflow: auto;
+  padding: 12px;
+  white-space: pre-line;
 }
 
 .empty-state {
@@ -1376,7 +1396,7 @@ tbody tr.old {
 
     <main class="app">
       <section class="topbar">
-        <div class="app-version">v.1.6.0 by 후추</div>
+        <div class="app-version">v.1.6.1 by 후추</div>
         <div class="title-block">
           <h1 id="appTitle">신규회선 날짜체크</h1>
           <p id="taglineText" class="tagline" aria-live="polite"></p>
@@ -1458,21 +1478,16 @@ tbody tr.old {
     <dialog id="noticeDialog" class="notice-dialog" aria-labelledby="noticeTitle">
       <form method="dialog" class="notice-card">
         <div class="notice-card-head">
-          <strong id="noticeTitle">공지</strong>
+          <strong id="noticeTitle">공지사항</strong>
           <button id="noticeCloseButton" type="button" class="mini-action">닫기</button>
         </div>
-        <textarea id="noticeTextInput" aria-label="공지 내용"></textarea>
-        <div class="notice-actions">
-          <button id="noticeResetButton" type="button" class="mini-action quiet">기본</button>
-          <button id="noticeSaveButton" type="button" class="mini-action">저장</button>
-        </div>
+        <div id="noticeContent" class="notice-content" aria-label="공지 내용"></div>
       </form>
     </dialog>
     <script>
 const STORAGE_KEY = "telecom-line-checker.records.v1";
 const LAST_BACKUP_KEY = "telecom-line-checker.last-backup.v1";
 const COLLAPSED_KEY = "telecom-line-checker.collapsed-owners.v1";
-const NOTICE_KEY = "telecom-line-checker.notice.v1";
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 // 제목과 아래 문구는 여기만 수정하면 화면에 바로 반영됩니다.
@@ -1483,7 +1498,13 @@ const TAGLINES = [
   "가장 희미한 잉크도 가장 뛰어난 기억력보다 낫다.",
   "적지 않은 생각은 존재하지 않는 생각과 같다.",
 ];
-const DEFAULT_NOTICE = `v.1.6.0 업데이트
+const DEFAULT_NOTICE = `v.1.6.1 업데이트
+- 공지창을 읽기 전용으로 변경했습니다.
+- 공지 버튼을 갈색으로 변경했습니다.
+- 다음 신규회선 가능일 카드의 날짜 줄바꿈을 정리했습니다.
+- 명의자별 요약 카드 배경을 홀짝으로 다르게 표시했습니다.
+
+v.1.6.0 업데이트
 - 상단 가능일 알림을 삭제했습니다.
 - 오늘 날짜 줄 오른쪽에 공지, 저장, 로드 버튼을 배치했습니다.
 - PIN 설정 기능을 제거했습니다.
@@ -1515,10 +1536,8 @@ const emptyState = document.querySelector("#emptyState");
 const todayText = document.querySelector("#todayText");
 const noticeButton = document.querySelector("#noticeButton");
 const noticeDialog = document.querySelector("#noticeDialog");
-const noticeTextInput = document.querySelector("#noticeTextInput");
+const noticeContent = document.querySelector("#noticeContent");
 const noticeCloseButton = document.querySelector("#noticeCloseButton");
-const noticeSaveButton = document.querySelector("#noticeSaveButton");
-const noticeResetButton = document.querySelector("#noticeResetButton");
 const backupButton = document.querySelector("#backupButton");
 const restoreButton = document.querySelector("#restoreButton");
 const restoreInput = document.querySelector("#restoreInput");
@@ -1653,8 +1672,6 @@ cancelEditButton.addEventListener("click", resetForm);
 
 noticeButton.addEventListener("click", openNoticeDialog);
 noticeCloseButton.addEventListener("click", closeNoticeDialog);
-noticeSaveButton.addEventListener("click", saveNoticeText);
-noticeResetButton.addEventListener("click", resetNoticeText);
 
 summaryGrid.addEventListener("click", (event) => {
   const card = event.target.closest("[data-summary-owner]");
@@ -1757,28 +1774,17 @@ function renderBackupStatus() {
 }
 
 function openNoticeDialog() {
-  noticeTextInput.value = localStorage.getItem(NOTICE_KEY) || DEFAULT_NOTICE;
+  noticeContent.textContent = DEFAULT_NOTICE;
   if (typeof noticeDialog.showModal === "function") {
     noticeDialog.showModal();
   } else {
     noticeDialog.setAttribute("open", "");
   }
-  noticeTextInput.focus();
 }
 
 function closeNoticeDialog() {
   noticeDialog.close?.();
   noticeDialog.removeAttribute("open");
-}
-
-function saveNoticeText() {
-  localStorage.setItem(NOTICE_KEY, noticeTextInput.value.trim() || DEFAULT_NOTICE);
-  closeNoticeDialog();
-}
-
-function resetNoticeText() {
-  noticeTextInput.value = DEFAULT_NOTICE;
-  localStorage.removeItem(NOTICE_KEY);
 }
 
 function renderSummary() {
@@ -1807,7 +1813,7 @@ function renderSummary() {
           <small class="summary-mobile-count">등록${ownerRecords.length}개,180일 내 ${active.length}개</small>
           <small class="summary-mobile-date">${formatCompactDate(nextDate)}</small>
           <small class="summary-mobile-dday">${formatDdayTight(nextDate)}</small>
-          <b>${formatCompactDate(nextDate)} · ${formatDday(nextDate)}</b>
+          <b><span class="summary-date-value">${formatCompactDate(nextDate)}</span><span class="summary-dday-value">${formatDday(nextDate)}</span></b>
         </div>
       </div>
     `;
