@@ -3,15 +3,15 @@ const LAST_BACKUP_KEY = "telecom-line-checker.last-backup.v1";
 const COLLAPSED_KEY = "telecom-line-checker.collapsed-owners.v1";
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-// 제목과 아래 문구는 여기만 수정하면 화면에 바로 반영됩니다.
-const APP_TITLE = "신규회선 날짜체크";
-const TAGLINES = [
-  "- 메모는 미래의 나에게 보내는 편지다.",
-  "- 아이디어는 실행되지 않으면 아무 가치가 없다.",
-  "- 가장 희미한 잉크도 가장 뛰어난 기억력보다 낫다.",
-  "- 적지 않은 생각은 존재하지 않는 생각과 같다.",
-];
-const DEFAULT_NOTICE = `v.1.6.1 업데이트
+const DEFAULT_SITE_CONTENT = {
+  title: "신규회선 날짜체크",
+  taglines: [
+    "- 메모는 미래의 나에게 보내는 편지다.",
+    "- 아이디어는 실행되지 않으면 아무 가치가 없다.",
+    "- 가장 희미한 잉크도 가장 뛰어난 기억력보다 낫다.",
+    "- 적지 않은 생각은 존재하지 않는 생각과 같다.",
+  ],
+  notice: `v.1.6.1 업데이트
 - 공지창을 읽기 전용으로 변경했습니다.
 - 공지 버튼을 갈색으로 변경했습니다.
 - 다음 신규회선 가능일 카드의 날짜 줄바꿈을 정리했습니다.
@@ -32,7 +32,8 @@ v.1.5.1 업데이트
 - 모바일 화면에서 목록 간격을 조정했습니다.
 
 v.1.5.0 업데이트
-- 신규회선 날짜체크 화면을 PWA 형태로 정리했습니다.`;
+- 신규회선 날짜체크 화면을 PWA 형태로 정리했습니다.`,
+};
 
 const appRoot = document.querySelector(".app");
 const appTitle = document.querySelector("#appTitle");
@@ -63,15 +64,9 @@ const splashScreen = document.querySelector("#splashScreen");
 let records = loadRecords();
 let collapsedOwners = loadCollapsedOwners();
 let editingId = null;
+let siteContent = DEFAULT_SITE_CONTENT;
 
-document.title = APP_TITLE;
-if (appTitle) appTitle.textContent = APP_TITLE;
-dateInput.value = todayInputDate();
-todayText.textContent = formatCompactDate(todayInputDate());
-
-initSplashScreen();
-initTaglineRotator();
-render();
+initApp();
 
 phoneInput.addEventListener("input", () => {
   phoneInput.value = formatPhoneNumber(phoneInput.value);
@@ -204,6 +199,55 @@ if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
   navigator.serviceWorker.register("./sw.js").catch(() => {});
 }
 
+async function initApp() {
+  siteContent = await loadSiteContent();
+  applySiteContent();
+  dateInput.value = todayInputDate();
+  todayText.textContent = formatCompactDate(todayInputDate());
+
+  initSplashScreen();
+  initTaglineRotator();
+  render();
+}
+
+async function loadSiteContent() {
+  const embeddedContent = document.querySelector("#embeddedSiteContent");
+  if (embeddedContent?.textContent?.trim()) {
+    try {
+      return normalizeSiteContent(JSON.parse(embeddedContent.textContent));
+    } catch {
+      return DEFAULT_SITE_CONTENT;
+    }
+  }
+
+  try {
+    const response = await fetch(`./site-content.json?v=${Date.now()}`, { cache: "no-store" });
+    if (!response.ok) throw new Error("Site content was not found.");
+    return normalizeSiteContent(await response.json());
+  } catch {
+    return DEFAULT_SITE_CONTENT;
+  }
+}
+
+function normalizeSiteContent(content) {
+  const title = typeof content?.title === "string" && content.title.trim() ? content.title.trim() : DEFAULT_SITE_CONTENT.title;
+  const taglines = Array.isArray(content?.taglines)
+    ? content.taglines.map((item) => String(item || "").trim()).filter(Boolean)
+    : DEFAULT_SITE_CONTENT.taglines;
+  const notice = typeof content?.notice === "string" && content.notice.trim() ? content.notice : DEFAULT_SITE_CONTENT.notice;
+
+  return {
+    title,
+    taglines: taglines.length ? taglines : DEFAULT_SITE_CONTENT.taglines,
+    notice,
+  };
+}
+
+function applySiteContent() {
+  document.title = siteContent.title;
+  if (appTitle) appTitle.textContent = siteContent.title;
+}
+
 function render() {
   appRoot.classList.toggle("has-records", records.length > 0);
   renderOwnerFilter();
@@ -226,18 +270,19 @@ function initSplashScreen() {
 }
 
 function initTaglineRotator() {
-  if (!taglineText || !TAGLINES.length) return;
+  const taglines = siteContent.taglines;
+  if (!taglineText || !taglines.length) return;
 
   const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   let index = 0;
 
   if (prefersReducedMotion) {
-    taglineText.textContent = TAGLINES[0];
+    taglineText.textContent = taglines[0];
     return;
   }
 
   const typeCurrent = () => {
-    const phrase = TAGLINES[index];
+    const phrase = taglines[index];
     let cursor = 0;
     taglineText.textContent = "";
     taglineText.classList.add("is-typing");
@@ -253,7 +298,7 @@ function initTaglineRotator() {
         taglineText.classList.add("is-hiding");
         window.setTimeout(() => {
           taglineText.classList.remove("is-hiding");
-          index = (index + 1) % TAGLINES.length;
+          index = (index + 1) % taglines.length;
           typeCurrent();
         }, 260);
       }, 3000);
@@ -287,7 +332,7 @@ function renderBackupStatus() {
 }
 
 function openNoticeDialog() {
-  noticeContent.textContent = DEFAULT_NOTICE;
+  noticeContent.textContent = siteContent.notice;
   if (typeof noticeDialog.showModal === "function") {
     noticeDialog.showModal();
   } else {

@@ -1,9 +1,9 @@
-const CACHE_NAME = "telecom-line-checker-v161";
+const CACHE_NAME = "telecom-line-checker-v162";
 const APP_FILES = [
   "./",
   "./index.html",
-  "./styles.css?v=161",
-  "./app.js?v=161",
+  "./styles.css?v=162",
+  "./app.js?v=162",
   "./manifest.json",
   "./icon.svg",
   "./splash.png",
@@ -25,5 +25,9 @@ self.addEventListener("activate", (event) => {
 
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
+  if (new URL(event.request.url).pathname.endsWith("/site-content.json")) {
+    event.respondWith(fetch(event.request));
+    return;
+  }
   event.respondWith(caches.match(event.request).then((cached) => cached || fetch(event.request)));
 });
