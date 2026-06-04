@@ -1,31 +1,31 @@
 param(
-  [string]$Message = "문구 내용 업데이트"
+  [string]$Message = "Update site content"
 )
 
 $ErrorActionPreference = "Stop"
 Set-Location $PSScriptRoot
 
-Write-Host "1/5 단일 HTML 파일을 다시 만듭니다..."
+Write-Host "1/5 Rebuilding standalone HTML..."
 node .\build-standalone.mjs
 
-Write-Host "2/5 변경 내용을 확인합니다..."
+Write-Host "2/5 Checking changes..."
 $changes = git status --short
 if (-not $changes) {
-  Write-Host "업로드할 변경 내용이 없습니다."
+  Write-Host "No changes to publish."
   exit 0
 }
 
 Write-Host $changes
 
-Write-Host "3/5 변경 내용을 저장합니다..."
+Write-Host "3/5 Creating local commit..."
 git add -A
 git commit -m $Message
 
-Write-Host "4/5 GitHub 최신 내용을 반영합니다..."
+Write-Host "4/5 Syncing with GitHub..."
 git fetch origin
 git rebase origin/main
 
-Write-Host "5/5 GitHub에 업로드합니다..."
+Write-Host "5/5 Uploading to GitHub..."
 git push origin main
 
-Write-Host "완료되었습니다. 잠시 후 링크 접속자에게 최신 문구가 반영됩니다."
+Write-Host "Done. The public link will show the latest content shortly."
