@@ -98,28 +98,24 @@ button:hover {
   order: 1;
 }
 
-.notice {
+.entry-panel {
   order: 2;
 }
 
-.entry-panel {
+.info-strip {
   order: 3;
 }
 
-.info-strip {
+.controls {
   order: 4;
 }
 
-.controls {
+.summary-grid {
   order: 5;
 }
 
-.summary-grid {
-  order: 6;
-}
-
 .table-wrap {
-  order: 7;
+  order: 6;
 }
 
 .app.has-records .controls {
@@ -146,7 +142,7 @@ button:hover {
 .topbar {
   align-items: center;
   display: grid;
-  gap: 10px;
+  gap: 8px;
   justify-items: stretch;
   margin-bottom: 8px;
   position: relative;
@@ -249,8 +245,9 @@ h1 {
 }
 
 .top-meta {
-  align-items: end;
+  align-items: center;
   display: flex;
+  gap: 10px;
   justify-content: space-between;
   min-width: 0;
   width: 100%;
@@ -263,6 +260,33 @@ h1 {
   line-height: 1;
   text-align: right;
   white-space: nowrap;
+}
+
+.top-actions {
+  align-items: center;
+  display: flex;
+  gap: 5px;
+  justify-content: flex-end;
+  min-width: 0;
+}
+
+.mini-action {
+  background: #2563eb;
+  border: 1px solid #1d4ed8;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+  height: 26px;
+  min-height: 26px;
+  padding: 0 8px;
+  white-space: nowrap;
+}
+
+.mini-action.quiet {
+  background: #fff;
+  border-color: #cbd5e1;
+  color: #475467;
 }
 
 .entry-panel,
@@ -526,10 +550,7 @@ textarea {
 }
 
 .controls {
-  display: grid;
-  gap: 8px;
-  margin-top: 10px;
-  padding: 10px 12px;
+  display: contents;
 }
 
 .button-row {
@@ -572,10 +593,12 @@ textarea {
 
 .backup-status {
   color: #667085;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
-  margin: 2px 0 0;
+  line-height: 1;
+  margin: 0 3px 0 0;
   text-align: right;
+  white-space: nowrap;
 }
 
 .visually-hidden {
@@ -965,6 +988,51 @@ tbody tr.old {
   min-height: 18px;
 }
 
+.notice-dialog {
+  border: 0;
+  border-radius: 12px;
+  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.28);
+  max-width: min(520px, calc(100% - 28px));
+  padding: 0;
+  width: 100%;
+}
+
+.notice-dialog::backdrop {
+  background: rgba(15, 23, 42, 0.44);
+}
+
+.notice-card {
+  background: #fff;
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+}
+
+.notice-card-head {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+}
+
+.notice-card-head strong {
+  color: #17384a;
+  font-size: 18px;
+  font-weight: 900;
+}
+
+.notice-card textarea {
+  font-size: 13px;
+  line-height: 1.55;
+  min-height: 260px;
+  resize: vertical;
+}
+
+.notice-actions {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
 .empty-state {
   align-items: center;
   color: var(--muted);
@@ -1078,6 +1146,30 @@ tbody tr.old {
   .today-box span,
   .today-box strong {
     font-size: 13px;
+  }
+
+  .top-meta {
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .top-actions {
+    flex-wrap: wrap;
+    gap: 4px;
+    max-width: 190px;
+  }
+
+  .backup-status {
+    flex-basis: 100%;
+    font-size: 10px;
+    margin: 0;
+  }
+
+  .mini-action {
+    font-size: 11px;
+    height: 25px;
+    min-height: 25px;
+    padding: 0 7px;
   }
 
   .button-row {

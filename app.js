@@ -1,9 +1,8 @@
 const STORAGE_KEY = "telecom-line-checker.records.v1";
-const PIN_KEY = "telecom-line-checker.pin.v1";
 const LAST_BACKUP_KEY = "telecom-line-checker.last-backup.v1";
 const COLLAPSED_KEY = "telecom-line-checker.collapsed-owners.v1";
+const NOTICE_KEY = "telecom-line-checker.notice.v1";
 const DAY_MS = 24 * 60 * 60 * 1000;
-const DUE_SOON_DAYS = 7;
 
 // 제목과 아래 문구는 여기만 수정하면 화면에 바로 반영됩니다.
 const APP_TITLE = "신규회선 날짜체크";
@@ -13,6 +12,22 @@ const TAGLINES = [
   "가장 희미한 잉크도 가장 뛰어난 기억력보다 낫다.",
   "적지 않은 생각은 존재하지 않는 생각과 같다.",
 ];
+const DEFAULT_NOTICE = `v.1.6.0 업데이트
+- 상단 가능일 알림을 삭제했습니다.
+- 오늘 날짜 줄 오른쪽에 공지, 저장, 로드 버튼을 배치했습니다.
+- PIN 설정 기능을 제거했습니다.
+- 백업 버튼 이름을 저장/로드로 줄였습니다.
+
+v.1.5.2 업데이트
+- 화면 상단 문구와 날짜 표시를 정리했습니다.
+- 명의자별 다음 신규회선 가능일 카드를 보기 쉽게 다듬었습니다.
+
+v.1.5.1 업데이트
+- 백업 저장과 불러오기 기능을 보강했습니다.
+- 모바일 화면에서 목록 간격을 조정했습니다.
+
+v.1.5.0 업데이트
+- 신규회선 날짜체크 화면을 PWA 형태로 정리했습니다.`;
 
 const appRoot = document.querySelector(".app");
 const appTitle = document.querySelector("#appTitle");
@@ -27,19 +42,19 @@ const tableBody = document.querySelector("#lineTable");
 const summaryGrid = document.querySelector("#summaryGrid");
 const emptyState = document.querySelector("#emptyState");
 const todayText = document.querySelector("#todayText");
+const noticeButton = document.querySelector("#noticeButton");
+const noticeDialog = document.querySelector("#noticeDialog");
+const noticeTextInput = document.querySelector("#noticeTextInput");
+const noticeCloseButton = document.querySelector("#noticeCloseButton");
+const noticeSaveButton = document.querySelector("#noticeSaveButton");
+const noticeResetButton = document.querySelector("#noticeResetButton");
 const backupButton = document.querySelector("#backupButton");
 const restoreButton = document.querySelector("#restoreButton");
 const restoreInput = document.querySelector("#restoreInput");
 const backupStatus = document.querySelector("#backupStatus");
-const pinButton = document.querySelector("#pinButton");
 const submitButton = document.querySelector("#submitButton");
 const cancelEditButton = document.querySelector("#cancelEditButton");
 const duplicateWarning = document.querySelector("#duplicateWarning");
-const backupNotice = document.querySelector("#backupNotice");
-const pinLock = document.querySelector("#pinLock");
-const pinUnlockInput = document.querySelector("#pinUnlockInput");
-const pinUnlockButton = document.querySelector("#pinUnlockButton");
-const pinMessage = document.querySelector("#pinMessage");
 const splashScreen = document.querySelector("#splashScreen");
 
 let records = loadRecords();
@@ -50,11 +65,9 @@ document.title = APP_TITLE;
 if (appTitle) appTitle.textContent = APP_TITLE;
 dateInput.value = todayInputDate();
 todayText.textContent = formatCompactDate(todayInputDate());
-pinButton.textContent = localStorage.getItem(PIN_KEY) ? "PIN 변경" : "PIN 설정";
 
 initSplashScreen();
 initTaglineRotator();
-initPinLock();
 render();
 
 phoneInput.addEventListener("input", () => {
@@ -127,7 +140,7 @@ restoreInput.addEventListener("change", () => {
       saveRecords();
       render();
     } catch {
-      alert("백업 파일을 읽을 수 없습니다. 파일 또는 비밀번호를 확인해주세요.");
+      alert("백업 파일을 읽을 수 없습니다. 파일을 확인해주세요.");
     } finally {
       restoreInput.value = "";
     }
@@ -167,6 +180,11 @@ tableBody.addEventListener("click", (event) => {
 
 cancelEditButton.addEventListener("click", resetForm);
 
+noticeButton.addEventListener("click", openNoticeDialog);
+noticeCloseButton.addEventListener("click", closeNoticeDialog);
+noticeSaveButton.addEventListener("click", saveNoticeText);
+noticeResetButton.addEventListener("click", resetNoticeText);
+
 summaryGrid.addEventListener("click", (event) => {
   const card = event.target.closest("[data-summary-owner]");
   if (!card) return;
@@ -181,34 +199,6 @@ summaryGrid.addEventListener("keydown", (event) => {
   scrollToOwner(card.dataset.summaryOwner);
 });
 
-pinButton.addEventListener("click", async () => {
-  const existing = localStorage.getItem(PIN_KEY);
-  if (existing) {
-    const current = prompt("현재 PIN을 입력하세요.");
-    if (!current || (await hashPin(current)) !== existing) {
-      alert("현재 PIN이 맞지 않습니다.");
-      return;
-    }
-  }
-
-  const next = prompt("새 PIN을 입력하세요. 비워두면 잠금이 해제됩니다.");
-  if (!next) {
-    localStorage.removeItem(PIN_KEY);
-    pinButton.textContent = "PIN 설정";
-    alert("PIN 잠금을 해제했습니다.");
-    return;
-  }
-
-  localStorage.setItem(PIN_KEY, await hashPin(next));
-  pinButton.textContent = "PIN 변경";
-  alert("PIN을 설정했습니다.");
-});
-
-pinUnlockButton.addEventListener("click", unlockWithPin);
-pinUnlockInput.addEventListener("keydown", (event) => {
-  if (event.key === "Enter") unlockWithPin();
-});
-
 if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
   navigator.serviceWorker.register("./sw.js").catch(() => {});
 }
@@ -217,8 +207,6 @@ function render() {
   appRoot.classList.toggle("has-records", records.length > 0);
   renderOwnerFilter();
   renderBackupStatus();
-  renderBackupNotice();
-  renderDueNotice();
   renderSummary();
   renderTable();
 }
@@ -291,37 +279,35 @@ function renderOwnerFilter() {
   ownerFilter.value = owners.includes(selected) ? selected : "all";
 }
 
-function renderBackupNotice() {
-  backupNotice.classList.remove("due-notice");
-  const lastBackup = localStorage.getItem(LAST_BACKUP_KEY);
-  const daysSinceBackup = lastBackup
-    ? Math.floor((dateValue(todayInputDate()) - dateValue(lastBackup.slice(0, 10))) / DAY_MS)
-    : Infinity;
-  const shouldShow = records.length >= 20 || daysSinceBackup >= 7;
-  const dueLines = getDueOwnerSummaries();
-
-  backupNotice.classList.toggle("hidden", (!shouldShow && !dueLines.length) || !records.length);
-  if (dueLines.length) {
-    backupNotice.innerHTML = makeDueNoticeHtml(dueLines);
-  } else if (shouldShow && records.length) {
-    backupNotice.classList.remove("due-notice");
-    backupNotice.textContent = lastBackup
-      ? `마지막 백업 후 ${daysSinceBackup}일이 지났습니다. 백업을 저장해두면 안전합니다.`
-      : "아직 백업한 기록이 없습니다. 백업 파일을 하나 만들어두면 안전합니다.";
-  }
-}
-
 function renderBackupStatus() {
   if (!backupStatus) return;
   const lastBackup = localStorage.getItem(LAST_BACKUP_KEY);
-  backupStatus.textContent = lastBackup ? `최근 백업: ${formatDate(lastBackup.slice(0, 10))}` : "최근 백업 기록이 없습니다.";
+  backupStatus.textContent = lastBackup ? `최근백업: ${formatTinyDate(lastBackup.slice(0, 10))}` : "최근백업: 없음";
 }
 
-function renderDueNotice() {
-  const dueLines = getDueOwnerSummaries();
-  if (!dueLines.length || !records.length) return;
-  backupNotice.classList.remove("hidden");
-  backupNotice.innerHTML = makeDueNoticeHtml(dueLines);
+function openNoticeDialog() {
+  noticeTextInput.value = localStorage.getItem(NOTICE_KEY) || DEFAULT_NOTICE;
+  if (typeof noticeDialog.showModal === "function") {
+    noticeDialog.showModal();
+  } else {
+    noticeDialog.setAttribute("open", "");
+  }
+  noticeTextInput.focus();
+}
+
+function closeNoticeDialog() {
+  noticeDialog.close?.();
+  noticeDialog.removeAttribute("open");
+}
+
+function saveNoticeText() {
+  localStorage.setItem(NOTICE_KEY, noticeTextInput.value.trim() || DEFAULT_NOTICE);
+  closeNoticeDialog();
+}
+
+function resetNoticeText() {
+  noticeTextInput.value = DEFAULT_NOTICE;
+  localStorage.removeItem(NOTICE_KEY);
 }
 
 function renderSummary() {
@@ -521,46 +507,6 @@ function getEarliestNextDate(ownerRecords) {
     .sort((a, b) => dateValue(a) - dateValue(b))[0];
 }
 
-function getDueOwnerSummaries() {
-  const grouped = groupByOwner(records);
-  return Object.entries(grouped)
-    .map(([owner, ownerRecords]) => {
-      const nextDate = getEarliestNextDate(ownerRecords);
-      const diff = Math.floor((dateValue(nextDate) - dateValue(todayInputDate())) / DAY_MS);
-      return { owner, nextDate, diff };
-    })
-    .filter((item) => item.diff <= DUE_SOON_DAYS)
-    .sort((a, b) => a.diff - b.diff || a.owner.localeCompare(b.owner, "ko", { numeric: true }));
-}
-
-function makeDueNoticeHtml(dueLines) {
-  backupNotice.classList.add("due-notice");
-  const ownerCards = dueLines
-    .map(
-      (item) => `
-        <li>
-          <strong>${escapeHtml(item.owner)}</strong>
-          <span>
-            <b>${formatDdayTight(item.nextDate)}</b>
-            <em>${formatMobileNoticeDate(item.nextDate)}</em>
-          </span>
-        </li>
-      `,
-    )
-    .join("");
-
-  return `
-    <div class="notice-heading">
-      <span aria-hidden="true">!</span>
-      <div>
-        <strong>신규회선 가능일이 다가왔습니다.</strong>
-        <p>오늘 처리할 명의자를 한눈에 확인하세요.</p>
-      </div>
-    </div>
-    <ul class="notice-list">${ownerCards}</ul>
-  `;
-}
-
 function scrollToOwner(owner) {
   if (collapsedOwners.has(owner)) {
     collapsedOwners.delete(owner);
@@ -650,12 +596,11 @@ function savePlainBackup() {
     "application/json;charset=utf-8",
   );
   const originalText = backupButton.textContent;
-  backupButton.textContent = "저장 완료";
+  backupButton.textContent = "완료";
   window.setTimeout(() => {
     backupButton.textContent = originalText;
   }, 1400);
   renderBackupStatus();
-  renderBackupNotice();
 }
 
 function makeBackupPayload() {
@@ -665,43 +610,6 @@ function makeBackupPayload() {
     exportedAt: new Date().toISOString(),
     records: sortedRecords(records),
   };
-}
-
-async function initPinLock() {
-  if (!localStorage.getItem(PIN_KEY)) return;
-  pinLock.classList.remove("hidden");
-  pinUnlockInput.focus();
-}
-
-async function unlockWithPin() {
-  const saved = localStorage.getItem(PIN_KEY);
-  if (!saved) {
-    pinLock.classList.add("hidden");
-    return;
-  }
-
-  if ((await hashPin(pinUnlockInput.value)) === saved) {
-    pinLock.classList.add("hidden");
-    pinUnlockInput.value = "";
-    pinMessage.textContent = "";
-    return;
-  }
-
-  pinMessage.textContent = "PIN이 맞지 않습니다.";
-}
-
-async function hashPin(pin) {
-  const input = `telecom-line-checker|${pin}`;
-  if (crypto.subtle) {
-    const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(input));
-    return toBase64(new Uint8Array(digest));
-  }
-
-  let hash = 0;
-  for (let index = 0; index < input.length; index += 1) {
-    hash = (hash * 31 + input.charCodeAt(index)) >>> 0;
-  }
-  return String(hash);
 }
 
 function addDays(dateString, days) {
@@ -752,12 +660,6 @@ function formatCompactDate(dateString) {
 
 function formatTinyDate(dateString) {
   return dateString.replaceAll("-", "");
-}
-
-function formatMobileNoticeDate(dateString) {
-  const date = fromInputDate(dateString);
-  const weekdays = ["일", "월", "화", "수", "목", "금", "토"];
-  return `${formatTinyDate(dateString)}(${weekdays[date.getUTCDay()]})`;
 }
 
 function formatDday(dateString) {
@@ -833,10 +735,6 @@ function formatPhoneNumber(value) {
   if (digits.length <= 3) return digits;
   if (digits.length <= 7) return `${digits.slice(0, 3)}-${digits.slice(3)}`;
   return `${digits.slice(0, 3)}-${digits.slice(3, 7)}-${digits.slice(7)}`;
-}
-
-function toBase64(bytes) {
-  return btoa(String.fromCharCode(...bytes));
 }
 
 function escapeHtml(value) {

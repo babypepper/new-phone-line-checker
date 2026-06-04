@@ -10,25 +10,16 @@
     <link rel="manifest" href="./manifest.json" />
     <link rel="icon" href="./icon.svg" />
     <link rel="apple-touch-icon" href="./icon.svg" />
-    <link rel="stylesheet" href="./styles.css?v=156" />
+    <link rel="stylesheet" href="./styles.css?v=160" />
   </head>
   <body>
     <div id="splashScreen" class="splash-screen" aria-label="시작 화면">
       <img src="./splash.png" alt="적자생존 신규회선 날짜체크 시작 이미지" />
     </div>
 
-    <div id="pinLock" class="pin-lock hidden">
-      <div class="pin-card">
-        <p class="eyebrow">잠금</p>
-        <h2>PIN을 입력하세요</h2>
-        <input id="pinUnlockInput" type="password" inputmode="numeric" maxlength="12" placeholder="PIN" />
-        <button id="pinUnlockButton" type="button">열기</button>
-        <p id="pinMessage" class="pin-message"></p>
-      </div>
-    </div>
-
     <main class="app">
       <section class="topbar">
+        <div class="app-version">v.1.6.0 by 후추</div>
         <div class="title-block">
           <h1 id="appTitle">신규회선 날짜체크</h1>
           <p id="taglineText" class="tagline" aria-live="polite"></p>
@@ -38,11 +29,14 @@
             <span>오늘</span>
             <strong id="todayText"></strong>
           </div>
-          <div class="app-version">v.1.5.2 by 후추</div>
+          <div class="top-actions">
+            <p id="backupStatus" class="backup-status"></p>
+            <button id="noticeButton" type="button" class="mini-action">공지</button>
+            <button id="backupButton" type="button" class="mini-action">저장</button>
+            <button id="restoreButton" type="button" class="mini-action">로드</button>
+          </div>
         </div>
       </section>
-
-      <section id="backupNotice" class="notice hidden" aria-label="백업 알림"></section>
 
       <section class="entry-panel" aria-label="신규회선 입력">
         <div class="panel-title">
@@ -82,16 +76,6 @@
         <select id="ownerFilter" class="visually-hidden" aria-hidden="true" tabindex="-1">
           <option value="all">전체</option>
         </select>
-        <div class="button-row">
-          <div class="button-row-left">
-            <button id="pinButton" type="button" class="secondary pin-action">PIN 설정</button>
-          </div>
-          <div class="button-row-right">
-            <button id="backupButton" type="button" class="secondary">백업저장</button>
-            <button id="restoreButton" type="button" class="secondary">불러오기</button>
-          </div>
-        </div>
-        <p id="backupStatus" class="backup-status"></p>
         <input id="restoreInput" type="file" accept="application/json,.json" hidden />
       </section>
 
@@ -114,6 +98,20 @@
       </section>
     </main>
 
-    <script src="./app.js?v=156"></script>
+    <dialog id="noticeDialog" class="notice-dialog" aria-labelledby="noticeTitle">
+      <form method="dialog" class="notice-card">
+        <div class="notice-card-head">
+          <strong id="noticeTitle">공지</strong>
+          <button id="noticeCloseButton" type="button" class="mini-action">닫기</button>
+        </div>
+        <textarea id="noticeTextInput" aria-label="공지 내용"></textarea>
+        <div class="notice-actions">
+          <button id="noticeResetButton" type="button" class="mini-action quiet">기본</button>
+          <button id="noticeSaveButton" type="button" class="mini-action">저장</button>
+        </div>
+      </form>
+    </dialog>
+
+    <script src="./app.js?v=160"></script>
   </body>
 </html>
