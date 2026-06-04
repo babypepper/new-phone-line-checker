@@ -4,7 +4,8 @@ const COLLAPSED_KEY = "telecom-line-checker.collapsed-owners.v1";
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 const DEFAULT_SITE_CONTENT = {
-  title: "신규회선 날짜체크",
+  title: "신규언제와",
+  splashImage: "./start-screen.png",
   taglines: [
     "- 메모는 미래의 나에게 보내는 편지다.",
     "- 아이디어는 실행되지 않으면 아무 가치가 없다.",
@@ -231,6 +232,10 @@ async function loadSiteContent() {
 
 function normalizeSiteContent(content) {
   const title = typeof content?.title === "string" && content.title.trim() ? content.title.trim() : DEFAULT_SITE_CONTENT.title;
+  const splashImage =
+    typeof content?.splashImage === "string" && content.splashImage.trim()
+      ? content.splashImage.trim()
+      : DEFAULT_SITE_CONTENT.splashImage;
   const taglines = Array.isArray(content?.taglines)
     ? content.taglines.map((item) => String(item || "").trim()).filter(Boolean)
     : DEFAULT_SITE_CONTENT.taglines;
@@ -238,6 +243,7 @@ function normalizeSiteContent(content) {
 
   return {
     title,
+    splashImage,
     taglines: taglines.length ? taglines : DEFAULT_SITE_CONTENT.taglines,
     notice,
   };
@@ -246,6 +252,8 @@ function normalizeSiteContent(content) {
 function applySiteContent() {
   document.title = siteContent.title;
   if (appTitle) appTitle.textContent = siteContent.title;
+  const splashImage = splashScreen?.querySelector("img");
+  if (splashImage) splashImage.src = siteContent.splashImage;
 }
 
 function render() {
