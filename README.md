@@ -17,18 +17,6 @@
 - JSON 백업 저장 / 백업 불러오기
 - D-Day 표시, 중복 번호 경고
 
-## 제목, 문구, 시작 이미지 바꾸기
-
-`site-content.json` 파일만 수정하면 됩니다.
-
-- `title`: 앱 화면 상단 제목
-- `taglines`: 제목 아래에 돌아가며 보이는 메모 문구
-- `splashImage`: 앱 실행 직후 잠깐 보이는 시작 이미지 파일명
-- `notice`: 공지 버튼을 눌렀을 때 보이는 내용
-
-시작 이미지를 바꾸고 싶으면 새 이미지를 이 폴더에 넣고 `splashImage` 값을 예를 들어 `"./my-start-image.png"`처럼 바꾸면 됩니다. 같은 이름으로 쉽게 교체하려면 새 이미지를 `start-screen.png`라는 이름으로 덮어쓰면 됩니다.
-
-홈화면 추가 아이콘은 `app-icon-source.png`가 원본이고, 실제 홈화면용 파일은 `app-icon-192.png`, `app-icon-512.png`, `apple-touch-icon.png`입니다. 아이콘을 바꿀 때는 같은 이름의 PNG 파일로 교체하면 됩니다.
 
 ## 데이터
 
